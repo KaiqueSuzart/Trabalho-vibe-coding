@@ -14,34 +14,38 @@ except ImportError:
     pass
 
 
-def _with_sslmode(url: str) -> str:
-    """Supabase/Vercel exige SSL; garante sslmode=require na URI."""
-    if "sslmode=" in url:
-        return url
+def _with_query(url: str, **params: str) -> str:
     parsed = urlparse(url)
     q = parse_qs(parsed.query)
-    q["sslmode"] = ["require"]
+    for key, value in params.items():
+        q[key] = [value]
     return urlunparse(parsed._replace(query=urlencode(q, doseq=True)))
 
 
 def _database_uri() -> str:
     url = (os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL") or "").strip()
-    # aspas acidentais no painel do Vercel
     if len(url) >= 2 and url[0] == url[-1] and url[0] in ("'", '"'):
         url = url[1:-1].strip()
 
     if url:
+        # Normaliza esquemas comuns
         if url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql+psycopg2://", 1)
-        elif url.startswith("postgresql://") and "+psycopg2" not in url:
-            url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
-        return _with_sslmode(url)
+            url = "postgresql+psycopg2://" + url[len("postgres://") :]
+        elif url.startswith("postgresql+psycopg2://"):
+            pass
+        elif url.startswith("postgresql://"):
+            url = "postgresql+psycopg2://" + url[len("postgresql://") :]
+
+        # SSL obrigatório no Supabase/Vercel
+        if "sslmode=" not in url:
+            url = _with_query(url, sslmode="require")
+        return url
 
     if os.environ.get("VERCEL"):
         raise RuntimeError(
             "DATABASE_URL não definida no Vercel. "
-            "Settings → Environment Variables → "
-            "postgresql://postgres.olsznvaungwnxdsbjprl:SENHA@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require"
+            "Use o pooler: "
+            "postgresql://postgres.REF:SENHA@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require"
         )
 
     return "sqlite:///" + os.path.join(BASE_DIR, "barraca.db")
@@ -55,10 +59,7 @@ class Config:
         {
             "poolclass": NullPool,
             "pool_pre_ping": True,
-            "connect_args": {
-                "connect_timeout": 10,
-                "sslmode": "require",
-            },
+            "connect_args": {"connect_timeout": 15},
         }
         if SQLALCHEMY_DATABASE_URI.startswith("postgresql")
         else {}

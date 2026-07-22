@@ -89,9 +89,12 @@ def create_app(config_class=Config):
 
     @app.get("/health")
     def health():
-        """Diagnóstico rápido de deploy (sem dados sensíveis)."""
+        """Diagnóstico rápido de deploy (sem senha)."""
         uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
         using_pg = uri.startswith("postgresql")
+        host = ""
+        if "@" in uri:
+            host = uri.split("@", 1)[1].split("/", 1)[0]
         db_ok = False
         db_err = None
         if using_pg:
@@ -99,17 +102,23 @@ def create_app(config_class=Config):
                 from sqlalchemy import text
 
                 db.session.execute(text("select 1"))
+                db.session.commit()
                 db_ok = True
             except Exception as exc:
-                db_err = type(exc).__name__
-        return {
+                db.session.rollback()
+                db_err = f"{type(exc).__name__}: {str(exc)[:240]}"
+        payload = {
             "ok": db_ok if using_pg else True,
             "vercel": bool(os.environ.get("VERCEL")),
             "database": "postgres" if using_pg else "sqlite",
-            "database_configured": bool(os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")),
+            "database_configured": bool(
+                os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")
+            ),
+            "db_host": host,
             "db_ping": db_ok,
             "db_error": db_err,
-        }, (200 if (db_ok or not using_pg) else 503)
+        }
+        return payload, (200 if payload["ok"] else 503)
 
     return app
 

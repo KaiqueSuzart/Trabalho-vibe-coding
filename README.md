@@ -119,19 +119,20 @@ Variáveis de ambiente (**Production e Preview**):
 | `DAY_PIN` | `1234` |
 | `DATABASE_URL` | pooler abaixo (obrigatório) |
 
-**DATABASE_URL (copie exatamente, trocando a senha se mudou):**
+**DATABASE_URL (copie exatamente):**
 
 ```text
-postgresql://postgres.olsznvaungwnxdsbjprl:Al101299130874%2A@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
+postgresql://postgres.olsznvaungwnxdsbjprl:Al101299130874%2A@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
 ```
 
 Importante:
-- Use o **pooler** (`aws-0-...pooler.supabase.com:6543`), não `db.xxx.supabase.co`
+- Host do **pooler** com porta **5432** (session) — não use `db.xxx.supabase.co`
 - O `*` da senha vira `%2A`
-- Sempre com `?sslmode=require`
-- Depois de salvar as variáveis, faça **Redeploy**
+- Inclua `?sslmode=require`
+- Salve → **Redeploy** (sem cache, se possível)
 
-Diagnóstico: https://trabalho-vibe-coding-liard.vercel.app/health
+Diagnóstico: https://trabalho-vibe-coding-liard.vercel.app/health  
+Se `db_ping` for `false`, olhe `db_error` e `db_host` no JSON.
 
 ---
 
