@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Pedidos — Tenda {{ tent.number }}{% endblock %}
 {% block content %}
-<section class="panel" data-poll-session="{{ open_session.id if open_session else '' }}">
+<section class="panel" data-poll-orders="{{ order_ids|join(',') }}">
   <div class="row-between">
     <h1>Seus pedidos</h1>
-    <a class="btn btn-sm" href="{{ url_for('public.menu', number=tent.number) }}">Cardápio</a>
+    <div class="cta-row">
+      <a class="btn btn-sm" href="{{ url_for('public.track_order') }}">Acompanhar via API</a>
+      <a class="btn btn-sm" href="{{ url_for('public.menu', number=tent.number) }}">Cardápio</a>
+    </div>
   </div>
   {% if not orders %}
     <div class="empty-state">
@@ -13,12 +16,15 @@
     </div>
   {% else %}
     {% for order in orders %}
-      <article class="order-card">
+      <article class="order-card" data-order-id="{{ order.id }}">
         <header>
           <strong>#{{ order.id }}</strong>
-          <span class="badge status-{{ order.status|label }}">{{ order.status|label }}</span>
+          <span class="badge status-{{ order.status|label }}" data-api-status>{{ order.status|label }}</span>
           <span class="muted">{{ order.created_at.strftime('%H:%M') }}</span>
         </header>
+        {% if estimates.get(order.id) %}
+          <p class="eta">Estimativa de espera: ~{{ estimates[order.id] }} min</p>
+        {% endif %}
         <p class="pay-tag">
           {% if order.payment_mode == 'online' %}
             {% if order.payment_status == 'pago' %}Pago online ({{ order.payment_method }})
@@ -33,12 +39,17 @@
             Na conta da tenda
           {% endif %}
         </p>
-        <ul>
+        <ul data-api-items>
           {% for item in order.items %}
             <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status|label }}</em></li>
           {% endfor %}
         </ul>
         <p class="price">R$ {{ '%.2f'|format(order.total) }}</p>
+        {% if can_cancel.get(order.id) %}
+        <form method="post" action="{{ url_for('public.cancel_order', number=tent.number, order_id=order.id) }}" onsubmit="return confirm('Cancelar pedido #{{ order.id }}?');">
+          <button class="btn btn-sm btn-danger" type="submit">Cancelar pedido ({{ cancel_minutes }} min)</button>
+        </form>
+        {% endif %}
       </article>
     {% endfor %}
   {% endif %}
@@ -46,9 +57,45 @@
 {% endblock %}
 {% block scripts %}
 <script>
-  if (document.querySelector('[data-poll-session]')) {
-    const id = document.querySelector('[data-poll-session]').dataset.pollSession;
-    if (id) setInterval(() => location.reload(), 8000);
+(async function () {
+  const root = document.querySelector('[data-poll-orders]');
+  if (!root) return;
+  const ids = (root.dataset.pollOrders || '').split(',').filter(Boolean);
+  if (!ids.length) return;
+
+  async function refresh() {
+    for (const id of ids) {
+      const res = await fetch('/api/pedido/' + id);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const card = document.querySelector('[data-order-id="' + id + '"]');
+      if (!card) continue;
+      const badge = card.querySelector('[data-api-status]');
+      if (badge) badge.textContent = data.status;
+      const ul = card.querySelector('[data-api-items]');
+      if (ul) {
+        ul.innerHTML = '';
+        (data.itens || []).forEach((it) => {
+          const li = document.createElement('li');
+          li.innerHTML = it.quantidade + 'x ' + it.nome + ' — <em>' + it.status + '</em>';
+          ul.appendChild(li);
+        });
+      }
+      let eta = card.querySelector('.eta');
+      if (data.estimativa_minutos > 0) {
+        if (!eta) {
+          eta = document.createElement('p');
+          eta.className = 'eta';
+          card.querySelector('header').after(eta);
+        }
+        eta.textContent = 'Estimativa de espera: ~' + data.estimativa_minutos + ' min';
+      } else if (eta) {
+        eta.remove();
+      }
+    }
   }
+
+  setInterval(refresh, 8000);
+})();
 </script>
 {% endblock %}

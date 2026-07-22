@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Acompanhar pedido{% endblock %}
+{% block content %}
+<section class="panel track-panel">
+  <h1>Acompanhar pedido</h1>
+  <p class="lede">Digite o número do pedido. Esta tela consome a API <code>/api/pedido/:numero</code>.</p>
+
+  <form id="track-form" class="stack-form">
+    <label for="track-numero">Número do pedido</label>
+    <div class="cta-row">
+      <input id="track-numero" type="number" min="1" class="input-lg" placeholder="Ex: 1" required value="{{ initial_numero or '' }}">
+      <button class="btn btn-primary btn-lg" type="submit">Ver status</button>
+    </div>
+  </form>
+
+  <div id="track-card" class="track-card" hidden>
+    <header class="row-between">
+      <strong id="track-title"></strong>
+      <span id="track-badge" class="badge"></span>
+    </header>
+    <p id="track-local" class="muted"></p>
+    <p id="track-time" class="muted"></p>
+    <p id="track-eta" class="eta"></p>
+    <ul id="track-items"></ul>
+  </div>
+  <p id="track-error" class="flash flash-danger" hidden></p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const form = document.getElementById('track-form');
+  const card = document.getElementById('track-card');
+  const err = document.getElementById('track-error');
+  let timer = null;
+
+  async function load(n) {
+    const res = await fetch('/api/pedido/' + encodeURIComponent(n));
+    const data = await res.json();
+    if (!res.ok) {
+      card.hidden = true;
+      err.hidden = false;
+      err.textContent = data.mensagem || 'Pedido não encontrado.';
+      return;
+    }
+    err.hidden = true;
+    card.hidden = false;
+    document.getElementById('track-title').textContent = 'Pedido #' + data.numero;
+    const badge = document.getElementById('track-badge');
+    badge.textContent = data.status;
+    badge.className = 'badge';
+    document.getElementById('track-local').textContent = data.localizacao;
+    document.getElementById('track-time').textContent = 'Horário: ' + data.horario_exibicao;
+    const eta = document.getElementById('track-eta');
+    if (data.estimativa_minutos > 0) {
+      eta.textContent = 'Estimativa de espera: ~' + data.estimativa_minutos + ' min';
+      eta.hidden = false;
+    } else {
+      eta.hidden = true;
+    }
+    const ul = document.getElementById('track-items');
+    ul.innerHTML = '';
+    (data.itens || []).forEach((it) => {
+      const li = document.createElement('li');
+      li.textContent = it.quantidade + 'x ' + it.nome + ' — ' + it.status;
+      ul.appendChild(li);
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const n = document.getElementById('track-numero').value.trim();
+    if (!n) return;
+    load(n);
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => load(n), 8000);
+  });
+
+  const initial = document.getElementById('track-numero').value.trim();
+  if (initial) form.dispatchEvent(new Event('submit'));
+})();
+</script>
+{% endblock %}

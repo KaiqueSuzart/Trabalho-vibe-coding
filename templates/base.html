@@ -17,10 +17,14 @@
       <a href="{{ url_for('public.home') }}">Início</a>
       <a href="{{ url_for('public.order_start') }}">Pedir</a>
       <a href="{{ url_for('public.menu_browse') }}">Cardápio</a>
+      <a href="{{ url_for('public.track_order') }}">Acompanhar</a>
+      <a href="{{ url_for('public.api_test') }}">Teste API</a>
       <a href="{{ url_for('public.reserve') }}">Reservar</a>
       {% if current_role == 'lojista' %}
         <a href="{{ url_for('admin.dashboard') }}">Lojista</a>
+        <a href="{{ url_for('barraca.dashboard') }}">Barraca</a>
       {% elif current_role == 'garcom' %}
+        <a href="{{ url_for('barraca.dashboard') }}">Barraca</a>
         <a href="{{ url_for('waiter.dashboard') }}">Garçom</a>
         <a href="{{ url_for('kitchen.dashboard') }}">Cozinha</a>
       {% endif %}

@@ -1,9 +1,11 @@
 """Popula o banco SQLite com dados de demonstração."""
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from app import create_app
 from models import Category, Product, Reservation, Tent, User, db
+from models import Order, OrderItem
+from models import Session as TentSession
 
 # Fotos locais (não dependem de link externo quebrado)
 IMG = {
@@ -113,11 +115,60 @@ def seed():
             ]
         )
 
+        # 3 pedidos de exemplo (enunciado): recebido | em preparo | entregue
+        agua = Product.query.filter_by(name="Água de Coco").first()
+        batata = Product.query.filter_by(name="Batata Frita").first()
+        cerveja = Product.query.filter_by(name="Cerveja Lata").first()
+        burger = Product.query.filter_by(name="X-Burger Praia").first()
+
+        def _demo_order(tent_number, customer, items, status, minutes_ago):
+            tent = Tent.query.filter_by(number=tent_number).first()
+            tent.status = "ocupada" if status != "entregue" else "livre"
+            sess = TentSession(
+                tent_id=tent.id,
+                customer_name=customer,
+                status="aberta" if status != "entregue" else "fechada",
+                opened_at=datetime.utcnow() - timedelta(minutes=minutes_ago + 5),
+                closed_at=datetime.utcnow() - timedelta(minutes=1) if status == "entregue" else None,
+                rental_charged=True,
+            )
+            db.session.add(sess)
+            db.session.flush()
+            order = Order(
+                session_id=sess.id,
+                status=status,
+                source="cliente",
+                payment_mode="na_conta",
+                payment_status="pendente" if status != "entregue" else "pago",
+                created_at=datetime.utcnow() - timedelta(minutes=minutes_ago),
+                notes="Pedido demo avaliação",
+            )
+            db.session.add(order)
+            db.session.flush()
+            for product, qty in items:
+                db.session.add(
+                    OrderItem(
+                        order_id=order.id,
+                        product_id=product.id,
+                        product_name=product.name,
+                        unit_price=product.price,
+                        quantity=qty,
+                        status=status,
+                        sector=product.category.sector,
+                    )
+                )
+            return order
+
+        o_rec = _demo_order(3, "Demo Recebido", [(agua, 2), (cerveja, 1)], "recebido", 12)
+        o_prep = _demo_order(7, "Demo Preparo", [(batata, 1), (burger, 1)], "preparando", 20)
+        o_ent = _demo_order(12, "Demo Entregue", [(agua, 1)], "entregue", 45)
+
         db.session.commit()
         print("Banco seedado com sucesso!")
         print("  admin / admin  (lojista)")
         print("  garcom / garcom")
         print("  PIN do dia para cliente: 1234")
+        print(f"  Pedidos demo API: #{o_rec.id} recebido | #{o_prep.id} em preparo | #{o_ent.id} entregue")
 
 
 if __name__ == "__main__":

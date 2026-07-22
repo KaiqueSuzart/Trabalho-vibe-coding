@@ -355,6 +355,17 @@ def place_order(number):
     if payment_mode not in ("online", "na_entrega", "na_conta"):
         payment_mode = "na_conta"
 
+    from helpers import recent_duplicate_order
+
+    dup = recent_duplicate_order(tent_session)
+    if dup:
+        flash(
+            f"Pedido duplicado bloqueado: a tenda {number} já pediu há menos de 2 minutos "
+            f"(pedido #{dup.id}). Aguarde um pouco ou acompanhe o pedido atual.",
+            "warning",
+        )
+        return redirect(url_for("public.orders", number=number))
+
     online_method = request.form.get("online_method", "pix")
     order_notes = request.form.get("order_notes", "").strip()
 
@@ -466,6 +477,8 @@ def orders(number):
     if session.get("client_tent") != number or not session.get("client_session_id"):
         return redirect(url_for("public.tent_entry", number=number))
 
+    from helpers import CANCEL_WINDOW_MINUTES, can_cancel_order, estimate_wait_minutes
+
     tent = Tent.query.filter_by(number=number).first_or_404()
     tent_session = TentSession.query.get(session["client_session_id"])
     orders_list = (
@@ -475,7 +488,64 @@ def orders(number):
         if tent_session
         else []
     )
-    return render_template("client/orders.html", tent=tent, orders=orders_list, open_session=tent_session)
+    # Não listar só aluguel como "pedido de cardápio" confunde — mantém todos
+    estimates = {o.id: estimate_wait_minutes(o) for o in orders_list if estimate_wait_minutes(o)}
+    can_cancel = {o.id: can_cancel_order(o) for o in orders_list}
+    order_ids = [o.id for o in orders_list if o.status != "cancelado"]
+    return render_template(
+        "client/orders.html",
+        tent=tent,
+        orders=orders_list,
+        open_session=tent_session,
+        estimates=estimates,
+        can_cancel=can_cancel,
+        cancel_minutes=CANCEL_WINDOW_MINUTES,
+        order_ids=order_ids,
+    )
+
+
+@public_bp.route("/t/<int:number>/pedidos/<int:order_id>/cancelar", methods=["POST"])
+def cancel_order(number, order_id):
+    if session.get("client_tent") != number or not session.get("client_session_id"):
+        return redirect(url_for("public.tent_entry", number=number))
+
+    from helpers import can_cancel_order
+
+    order = Order.query.get_or_404(order_id)
+    if order.session_id != session.get("client_session_id"):
+        flash("Pedido inválido.", "danger")
+        return redirect(url_for("public.orders", number=number))
+
+    if not can_cancel_order(order):
+        flash("Este pedido não pode mais ser cancelado (prazo esgotado ou já em preparo).", "warning")
+        return redirect(url_for("public.orders", number=number))
+
+    order.status = "cancelado"
+    for item in order.items:
+        item.status = "cancelado"
+        product = Product.query.get(item.product_id)
+        if product and product.kind == "produto":
+            product.stock_qty += item.quantity
+            db.session.add(
+                StockMovement(
+                    product_id=product.id,
+                    quantity=item.quantity,
+                    reason=f"Cancelamento pedido #{order.id}",
+                )
+            )
+    db.session.commit()
+    flash(f"Pedido #{order.id} cancelado.", "info")
+    return redirect(url_for("public.orders", number=number))
+
+
+@public_bp.route("/acompanhar")
+def track_order():
+    return render_template("public/track.html", initial_numero=request.args.get("n", ""))
+
+
+@public_bp.route("/teste-api")
+def api_test():
+    return render_template("public/api_test.html")
 
 
 @public_bp.route("/t/<int:number>/conta")

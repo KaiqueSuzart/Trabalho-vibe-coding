@@ -1103,6 +1103,8 @@ a.tent-card:hover { background: #fff8dc; text-decoration: none; }
   .online-methods { padding-left: 0; flex-wrap: wrap; }
   .flash-wrap { width: min(100% - 1.25rem, 92%); }
   .page-home .flash-wrap { margin-top: 4.8rem; }
+  .status-counters { flex-wrap: wrap; }
+  .barraca-card .cta-row { flex-wrap: wrap; }
 }
 
 @media (max-width: 380px) {
@@ -1116,3 +1118,83 @@ a.tent-card:hover { background: #fff8dc; text-decoration: none; }
   .carousel-slide { flex-basis: calc(33.333% - 0.6rem); }
   .hero-copy { margin-bottom: 14vh; }
 }
+
+/* —— Enunciado: painel barraca / API / acompanhamento —— */
+.status-counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.25rem;
+}
+.counter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.85rem;
+  background: #fff;
+  border: 2px solid var(--line);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-height: 44px;
+}
+.counter-chip strong { color: var(--navy); }
+.counter-chip.active {
+  border-color: var(--navy);
+  background: #e8f2f4;
+  text-decoration: none;
+}
+.barraca-list { display: grid; gap: 0.85rem; }
+.barraca-card {
+  background: #fff;
+  border: 2px solid var(--line);
+  padding: 1rem;
+}
+.barraca-card.is-done {
+  opacity: 0.72;
+  background: #f3f1ec;
+  border-style: dashed;
+}
+.barraca-card.status-tone-cancelado { border-color: #e0b4ad; }
+.barraca-card.status-tone-entregue { border-color: #b7d4c0; }
+.eta {
+  margin: 0.35rem 0;
+  font-weight: 700;
+  color: var(--navy-mid);
+}
+.api-test-panel .lede,
+.track-panel .lede { color: var(--muted); max-width: 40rem; }
+.input-lg {
+  flex: 1;
+  min-width: 8rem;
+  min-height: 48px;
+  font-size: 1.15rem;
+  padding: 0.65rem 0.85rem;
+  border: 2px solid var(--line);
+  background: #fff;
+}
+.btn-lg { min-height: 48px; font-size: 1.05rem; padding: 0.7rem 1.2rem; }
+.json-box {
+  background: #0f1f24;
+  color: #d7efe8;
+  padding: 1rem;
+  overflow: auto;
+  font-size: 0.85rem;
+  max-height: 28rem;
+  border: 2px solid var(--navy);
+}
+.ok-code { color: var(--ok); }
+.err-code { color: var(--danger); }
+.track-card {
+  margin-top: 1.25rem;
+  background: #fff;
+  border: 2px solid var(--line);
+  padding: 1.1rem;
+}
+.stack-form { display: grid; gap: 0.45rem; margin: 1rem 0; }
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+.cta-row.wrap { flex-wrap: wrap; }

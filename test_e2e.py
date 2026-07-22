@@ -19,6 +19,45 @@ def main():
             print(f" FAIL {msg}")
             fails.append(msg)
 
+    print("0) Enunciado professor — API / painel / telas")
+    r = client.get("/teste-api")
+    ok(r.status_code == 200, "GET /teste-api")
+    r = client.get("/acompanhar")
+    ok(r.status_code == 200, "GET /acompanhar")
+    with app.app_context():
+        demo_rec = Order.query.filter_by(status="recebido", notes="Pedido demo avaliação").first()
+        demo_prep = Order.query.filter_by(status="preparando", notes="Pedido demo avaliação").first()
+        demo_ent = Order.query.filter_by(status="entregue", notes="Pedido demo avaliação").first()
+        ok(demo_rec and demo_prep and demo_ent, "3 pedidos demo no seed")
+        demo_ids = {
+            "recebido": demo_rec.id if demo_rec else None,
+            "preparando": demo_prep.id if demo_prep else None,
+            "entregue": demo_ent.id if demo_ent else None,
+        }
+    if demo_ids.get("recebido"):
+        r = client.get(f"/api/pedido/{demo_ids['recebido']}")
+        ok(r.status_code == 200, "API 200 pedido existente")
+        data = r.get_json()
+        ok(data and data.get("status") == "recebido" and "itens" in data and "localizacao" in data, "API payload completo")
+        ok("horario" in data, "API tem horario")
+    if demo_ids.get("preparando"):
+        r = client.get(f"/api/pedido/{demo_ids['preparando']}")
+        ok(r.status_code == 200 and r.get_json().get("status") == "em preparo", "API mapeia em preparo")
+    if demo_ids.get("entregue"):
+        r = client.get(f"/api/pedido/{demo_ids['entregue']}")
+        ok(r.status_code == 200 and r.get_json().get("status") == "entregue", "API entregue")
+    r = client.get("/api/pedido/999999")
+    ok(r.status_code == 404, "API 404 inexistente")
+    err = r.get_json() or {}
+    ok(err.get("mensagem") or err.get("erro"), "API 404 com mensagem")
+
+    r = staff.post("/login", data={"username": "garcom", "password": "garcom"}, follow_redirects=False)
+    ok(r.status_code in (302, 303), "login garçom (pré)")
+    r = staff.get("/barraca/")
+    ok(r.status_code == 200, "GET /barraca/")
+    ok(b"Painel da Barraca" in r.data, "painel barraca renderiza")
+    ok(b"Recebido" in r.data or b"recebido" in r.data.lower(), "contadores/filtro no painel")
+
     print("1) Home / cardápio / pedir")
     ok(client.get("/").status_code == 200, "GET /")
     ok(client.get("/cardapio").status_code == 200, "GET /cardapio")

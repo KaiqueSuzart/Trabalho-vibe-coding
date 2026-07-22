@@ -36,6 +36,14 @@ Lojista            →  Cardápio, estoque, relatórios
   - **Pagar na entrega** — garçom cobra ao trazer
   - **Deixar na conta** — fecha tudo no final
 - Acompanhar pedidos e status da conta (pago / em aberto / entregue)
+- **Acompanhar** pedido via API (`/acompanhar`) e **Teste API** (`/teste-api`)
+- Estimativa de espera, cancelamento em até 5 min e bloqueio de pedido duplicado (&lt; 2 min)
+
+### Painel da Barraca (`/barraca`)
+- Pedidos ativos do mais antigo ao mais recente
+- Contadores e filtro por status
+- Atualização de status (recebido → em preparo → pronto → entregue / cancelado)
+- Histórico de entregues/cancelados visualmente distinto
 
 ### Garçom
 - Check-in manual de tendas
@@ -64,10 +72,12 @@ Lojista            →  Cardápio, estoque, relatórios
 | Camada | Tecnologia |
 |--------|------------|
 | Backend | Python 3 + Flask |
-| Banco | SQLite local (`barraca.db`) |
+| Banco | SQLite local ou **Postgres/Supabase** (`DATABASE_URL`) |
 | ORM | Flask-SQLAlchemy |
 | Front | Jinja2 + HTML/CSS/JS (responsivo) |
 | Auth | Sessão Flask (equipe) · PIN do dia (cliente) |
+| API | `GET /api/pedido/<numero>` → 200 JSON ou 404 |
+| Deploy | Vercel + Supabase |
 
 ---
 

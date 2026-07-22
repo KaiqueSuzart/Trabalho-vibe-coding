@@ -1,9 +1,29 @@
-from flask import Blueprint, jsonify, session
+from flask import Blueprint, jsonify
 
-from models import Order, OrderItem, Tent
+from helpers import serialize_order_api
+from models import Order, Tent
 from models import Session as TentSession
+from flask import session
 
 api_bp = Blueprint("api", __name__)
+
+
+@api_bp.route("/pedido/<int:numero>")
+def pedido_status(numero):
+    """GET /api/pedido/:numero — enunciado do professor (200 ou 404)."""
+    order = Order.query.get(numero)
+    if not order:
+        return (
+            jsonify(
+                {
+                    "erro": True,
+                    "mensagem": f"Pedido #{numero} não encontrado.",
+                    "numero": numero,
+                }
+            ),
+            404,
+        )
+    return jsonify(serialize_order_api(order)), 200
 
 
 @api_bp.route("/tents")
@@ -26,7 +46,6 @@ def tents_status():
 
 @api_bp.route("/session/<int:session_id>/orders")
 def session_orders(session_id):
-    # cliente só vê a própria sessão
     if session.get("client_session_id") and session.get("client_session_id") != session_id:
         if not session.get("user_id"):
             return jsonify({"error": "forbidden"}), 403
@@ -34,28 +53,14 @@ def session_orders(session_id):
     tent_session = TentSession.query.get_or_404(session_id)
     payload = []
     for order in tent_session.orders:
-        payload.append(
-            {
-                "id": order.id,
-                "status": order.status,
-                "created_at": order.created_at.isoformat(),
-                "items": [
-                    {
-                        "id": i.id,
-                        "name": i.product_name,
-                        "quantity": i.quantity,
-                        "status": i.status,
-                        "sector": i.sector,
-                    }
-                    for i in order.items
-                ],
-            }
-        )
+        payload.append(serialize_order_api(order))
     return jsonify({"session_status": tent_session.status, "orders": payload})
 
 
 @api_bp.route("/kitchen/pending")
 def kitchen_pending():
+    from models import OrderItem
+
     if not session.get("user_id"):
         return jsonify({"error": "unauthorized"}), 401
     items = (
@@ -82,6 +87,8 @@ def kitchen_pending():
 
 @api_bp.route("/waiter/ready")
 def waiter_ready():
+    from models import OrderItem
+
     if not session.get("user_id"):
         return jsonify({"error": "unauthorized"}), 401
     items = OrderItem.query.filter_by(status="pronto").all()

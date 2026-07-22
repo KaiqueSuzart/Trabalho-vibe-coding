@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Teste da API{% endblock %}
+{% block content %}
+<section class="panel api-test-panel">
+  <h1>Tela de teste da API</h1>
+  <p class="lede">Consulta <code>GET /api/pedido/:numero</code> — mostra o JSON e o status HTTP (200 ou 404).</p>
+
+  <form id="api-test-form" class="stack-form" autocomplete="off">
+    <label for="pedido-numero">Número do pedido</label>
+    <div class="cta-row">
+      <input id="pedido-numero" name="numero" type="number" min="1" placeholder="Ex: 1" required class="input-lg">
+      <button class="btn btn-primary btn-lg" type="submit">Consultar API</button>
+    </div>
+  </form>
+
+  <p class="muted tip-ids">Pedidos de exemplo no seed: use os números que aparecerem em <a href="{{ url_for('barraca.dashboard') }}">Painel da Barraca</a> (login equipe) ou em <a href="{{ url_for('public.track_order') }}">Acompanhar</a>.</p>
+
+  <div class="api-result" id="api-result" hidden>
+    <p>Status HTTP: <strong id="api-status-code"></strong></p>
+    <pre id="api-json" class="json-box"></pre>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const form = document.getElementById('api-test-form');
+  const result = document.getElementById('api-result');
+  const codeEl = document.getElementById('api-status-code');
+  const jsonEl = document.getElementById('api-json');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const n = document.getElementById('pedido-numero').value.trim();
+    if (!n) return;
+    const res = await fetch('/api/pedido/' + encodeURIComponent(n));
+    const text = await res.text();
+    let pretty = text;
+    try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch (_) {}
+    codeEl.textContent = res.status;
+    codeEl.className = res.status === 200 ? 'ok-code' : 'err-code';
+    jsonEl.textContent = pretty;
+    result.hidden = false;
+  });
+})();
+</script>
+{% endblock %}

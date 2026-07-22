@@ -14,7 +14,8 @@ STATUS_LABELS = {
     "fechamento_solicitado": "Fechamento pedido",
     "fechada": "Fechada",
     "recebido": "Recebido",
-    "preparando": "Preparando",
+    "preparando": "Em preparo",
+    "em preparo": "Em preparo",
     "pronto": "Pronto",
     "entregue": "Entregue",
     "cancelado": "Cancelado",
@@ -42,6 +43,7 @@ def create_app(config_class=Config):
     from routes.admin import admin_bp
     from routes.api import api_bp
     from routes.auth import auth_bp
+    from routes.barraca import barraca_bp
     from routes.kitchen import kitchen_bp
     from routes.public import public_bp
     from routes.waiter import waiter_bp
@@ -50,6 +52,7 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(waiter_bp, url_prefix="/garcom")
     app.register_blueprint(kitchen_bp, url_prefix="/cozinha")
+    app.register_blueprint(barraca_bp, url_prefix="/barraca")
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(api_bp, url_prefix="/api")
 
