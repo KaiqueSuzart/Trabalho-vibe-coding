@@ -540,12 +540,45 @@ def cancel_order(number, order_id):
 
 @public_bp.route("/acompanhar")
 def track_order():
-    return render_template("client/track.html", initial_numero=request.args.get("n", ""))
+    try:
+        return render_template("client/track.html", initial_numero=request.args.get("n", ""))
+    except Exception as exc:
+        current_app.logger.exception("acompanhar: %s", exc)
+        return (
+            "<h1>Acompanhar pedido</h1>"
+            "<p>Digite o número e consulte a API:</p>"
+            "<p><code>/api/pedido/1</code></p>"
+            f"<pre>{exc}</pre>",
+            200,
+        )
 
 
 @public_bp.route("/teste-api")
 def api_test():
-    return render_template("client/api_test.html")
+    try:
+        return render_template("client/api_test.html")
+    except Exception as exc:
+        current_app.logger.exception("teste-api: %s", exc)
+        # Fallback mínimo para a rubrica nunca ficar fora do ar
+        return (
+            """<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Teste API</title></head>
+<body style="font-family:sans-serif;max-width:720px;margin:2rem auto;padding:1rem">
+<h1>Tela de teste da API</h1>
+<p>GET <code>/api/pedido/:numero</code></p>
+<label>Número <input id="n" type="number" value="1"></label>
+<button id="b">Consultar</button>
+<p>Status: <strong id="s"></strong></p>
+<pre id="out" style="background:#111;color:#d7efe8;padding:1rem"></pre>
+<script>
+document.getElementById('b').onclick=async()=>{
+  const n=document.getElementById('n').value;
+  const r=await fetch('/api/pedido/'+n);
+  document.getElementById('s').textContent=r.status;
+  document.getElementById('out').textContent=JSON.stringify(await r.json(),null,2);
+};
+</script></body></html>""",
+            200,
+        )
 
 
 @public_bp.route("/t/<int:number>/conta")
