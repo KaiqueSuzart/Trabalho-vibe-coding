@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -13,6 +14,11 @@ try:
 except ImportError:
     pass
 
+# Região do projeto (confirmada pelo pooler que já funciona localmente)
+SUPABASE_POOLER_HOST = os.environ.get(
+    "SUPABASE_POOLER_HOST", "aws-0-us-east-1.pooler.supabase.com"
+)
+
 
 def _with_query(url: str, **params: str) -> str:
     parsed = urlparse(url)
@@ -22,13 +28,45 @@ def _with_query(url: str, **params: str) -> str:
     return urlunparse(parsed._replace(query=urlencode(q, doseq=True)))
 
 
+def _rewrite_direct_to_pooler(url: str) -> str:
+    """
+    Vercel não alcança db.*.supabase.co (IPv6).
+    Reescreve Direct → Shared Pooler (IPv4), session :5432.
+    """
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    m = re.match(r"^db\.([a-z0-9]+)\.supabase\.co$", host)
+    if not m:
+        return url
+
+    ref = m.group(1)
+    password = parsed.password or ""
+    # user no Direct costuma ser "postgres"; no pooler é "postgres.<ref>"
+    user = parsed.username or "postgres"
+    if not user.startswith("postgres."):
+        user = f"postgres.{ref}"
+
+    # Remonta URI com pooler session (5432)
+    netloc = f"{user}:{password}@{SUPABASE_POOLER_HOST}:5432"
+    rewritten = urlunparse(
+        (
+            parsed.scheme,
+            netloc,
+            parsed.path or "/postgres",
+            "",
+            parsed.query,
+            "",
+        )
+    )
+    return rewritten
+
+
 def _database_uri() -> str:
     url = (os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL") or "").strip()
     if len(url) >= 2 and url[0] == url[-1] and url[0] in ("'", '"'):
         url = url[1:-1].strip()
 
     if url:
-        # Normaliza esquemas comuns
         if url.startswith("postgres://"):
             url = "postgresql+psycopg2://" + url[len("postgres://") :]
         elif url.startswith("postgresql+psycopg2://"):
@@ -36,7 +74,10 @@ def _database_uri() -> str:
         elif url.startswith("postgresql://"):
             url = "postgresql+psycopg2://" + url[len("postgresql://") :]
 
-        # SSL obrigatório no Supabase/Vercel
+        # Corrige env antigo do Vercel (Direct IPv6)
+        if os.environ.get("VERCEL"):
+            url = _rewrite_direct_to_pooler(url)
+
         if "sslmode=" not in url:
             url = _with_query(url, sslmode="require")
         return url
