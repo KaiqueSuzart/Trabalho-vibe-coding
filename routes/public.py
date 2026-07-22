@@ -540,12 +540,12 @@ def cancel_order(number, order_id):
 
 @public_bp.route("/acompanhar")
 def track_order():
-    return render_template("public/track.html", initial_numero=request.args.get("n", ""))
+    return render_template("client/track.html", initial_numero=request.args.get("n", ""))
 
 
 @public_bp.route("/teste-api")
 def api_test():
-    return render_template("public/api_test.html")
+    return render_template("client/api_test.html")
 
 
 @public_bp.route("/t/<int:number>/conta")
