@@ -4,14 +4,14 @@
 <section class="panel">
   <div class="row-between">
     <h1>Mapa de ocupação</h1>
-    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+    {% include "admin/_nav.html" %}
   </div>
   <div class="tent-grid">
     {% for tent in tents %}
-      <div class="tent-card status-{{ tent.status }}">
+      <div class="tent-card status-{{ tent.status|label }}">
         <span class="tent-num">{{ tent.number }}</span>
         <span class="tent-meta">{{ tent.zone }} · {{ tent.capacity }}p</span>
-        <span class="tent-status">{{ tent.status }}</span>
+        <span class="tent-status">{{ tent.status|label }}</span>
         <span class="muted">R$ {{ '%.0f'|format(tent.daily_price) }}</span>
       </div>
     {% endfor %}

@@ -153,14 +153,18 @@ def main():
             "stock_min": "2",
             "kind": "produto",
             "description": "teste",
+            "image_url": "",
         },
         follow_redirects=True,
     )
     ok(r.status_code == 200, "criar produto")
     with app.app_context():
-        p = Product.query.filter_by(name="Produto Teste E2E").first()
+        p = Product.query.filter_by(name="Produto Teste E2E").order_by(Product.id.desc()).first()
         ok(p is not None and p.price == 11.5, "produto persistido")
         pid = p.id
+        # garante base conhecida para o teste de estoque
+        p.stock_qty = 10
+        db.session.commit()
     r = admin.post(
         "/admin/estoque",
         data={"product_id": str(pid), "quantity": "5", "reason": "teste entrada"},

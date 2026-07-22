@@ -14,7 +14,7 @@
   </div>
 </div>
 
-{% for category in categories %}
+{% for category in categories if category.sector != 'servico' %}
   {% set items = category.products|selectattr('available')|list %}
   {% if items %}
   <section class="menu-cat">
@@ -49,10 +49,9 @@
   {% endif %}
 {% endfor %}
 
-<!-- Modal quantidade -->
 <div class="modal" id="product-modal" hidden>
   <div class="modal-backdrop" data-close></div>
-  <div class="modal-sheet" role="dialog" aria-modal="true">
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="m-name">
     <button type="button" class="modal-x" data-close aria-label="Fechar">×</button>
     <div class="modal-photo" id="m-photo"></div>
     <div class="modal-body">
@@ -64,9 +63,9 @@
         <input type="hidden" name="product_id" id="m-id">
         <label>Quantidade
           <div class="qty-row">
-            <button type="button" class="btn qty-btn" id="qty-minus">−</button>
+            <button type="button" class="btn qty-btn" id="qty-minus" aria-label="Diminuir">−</button>
             <input type="number" name="quantity" id="m-qty" value="1" min="1" max="20">
-            <button type="button" class="btn qty-btn" id="qty-plus">+</button>
+            <button type="button" class="btn qty-btn" id="qty-plus" aria-label="Aumentar">+</button>
           </div>
         </label>
         <label>Observação

@@ -144,12 +144,20 @@ def checkin():
             tent_session.rental_charged = True
 
         db.session.commit()
-        flash(f"Check-in da tenda {tent.number} realizado. PIN do dia: consulte o painel.", "success")
+        from flask import current_app
+
+        pin = current_app.config.get("DAY_PIN", "1234")
+        flash(f"Check-in da tenda {tent.number} ok. PIN do dia para o cliente: {pin}", "success")
         return redirect(url_for("waiter.dashboard"))
 
+    from datetime import date as date_cls
+
     today_reservations = (
-        Reservation.query.filter(Reservation.status.in_(["confirmada", "pendente"]))
-        .order_by(Reservation.date.asc())
+        Reservation.query.filter(
+            Reservation.date == date_cls.today(),
+            Reservation.status.in_(["confirmada", "pendente"]),
+        )
+        .order_by(Reservation.id.asc())
         .all()
     )
     return render_template("waiter/checkin.html", tents=tents, reservations=today_reservations)

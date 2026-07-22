@@ -1,7 +1,37 @@
+import os
+
 from flask import Flask
 
 from config import Config
 from models import db
+
+STATUS_LABELS = {
+    "livre": "Livre",
+    "reservada": "Reservada",
+    "ocupada": "Ocupada",
+    "manutencao": "Manutenção",
+    "aberta": "Aberta",
+    "fechamento_solicitado": "Fechamento pedido",
+    "fechada": "Fechada",
+    "recebido": "Recebido",
+    "preparando": "Preparando",
+    "pronto": "Pronto",
+    "entregue": "Entregue",
+    "cancelado": "Cancelado",
+    "cancelada": "Cancelada",
+    "pendente": "Pendente",
+    "confirmada": "Confirmada",
+    "checkin": "Check-in",
+    "concluida": "Concluída",
+    "pago": "Pago",
+    "cobrar_entrega": "Cobrar na entrega",
+    "online": "Online",
+    "na_entrega": "Na entrega",
+    "na_conta": "Na conta",
+    "pix": "PIX",
+    "dinheiro": "Dinheiro",
+    "cartao": "Cartão",
+}
 
 
 def create_app(config_class=Config):
@@ -23,19 +53,36 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(api_bp, url_prefix="/api")
 
+    @app.template_filter("label")
+    def status_label(value):
+        if value is None:
+            return ""
+        key = str(value)
+        return STATUS_LABELS.get(key, key.replace("_", " ").capitalize())
+
     @app.context_processor
     def inject_globals():
-        from flask import session as flask_session
+        from flask import has_request_context, session as flask_session
+
+        if not has_request_context():
+            return {"current_user_name": None, "current_role": None, "day_pin": app.config.get("DAY_PIN", "1234")}
 
         return {
             "current_user_name": flask_session.get("user_name"),
             "current_role": flask_session.get("role"),
+            "day_pin": app.config.get("DAY_PIN", "1234"),
         }
 
     with app.app_context():
         from migrate import ensure_schema
 
-        ensure_schema()
+        try:
+            ensure_schema()
+        except Exception as exc:
+            # Evita crash opaco no Vercel; a rota ainda pode mostrar o erro
+            app.logger.exception("Falha ao preparar schema: %s", exc)
+            if os.environ.get("VERCEL"):
+                raise
 
     return app
 

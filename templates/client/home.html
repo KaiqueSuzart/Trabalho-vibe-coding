@@ -23,9 +23,9 @@
       <h2>Já acomodou? Peça daqui</h2>
       <p class="muted">Informe o número da tenda e o PIN. Escolha bebidas, porções e lanches — a cozinha recebe na hora.</p>
       <ol class="steps">
-        <li>Garçom faz o check-in da tenda</li>
-        <li>Você entra com o número + PIN</li>
-        <li>Monta o pedido e acompanha o status</li>
+        <li>Informe o número da tenda e o PIN do dia</li>
+        <li>A sessão abre sozinha (se a tenda estiver livre ou reservada)</li>
+        <li>Monte o pedido e acompanhe o status na conta</li>
       </ol>
       <div class="cta-row">
         <a class="btn btn-primary" href="{{ url_for('public.order_start') }}">Ir para pedir</a>
@@ -96,9 +96,9 @@
     <p class="zone-label">Frente Mar</p>
     <div class="tent-row">
       {% for tent in tents if tent.zone == 'Frente Mar' %}
-        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+        <a class="tent-spot status-{{ tent.status|label }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
           <span class="tent-num">{{ tent.number }}</span>
-          <span class="tent-status">{{ tent.status }}</span>
+          <span class="tent-status">{{ tent.status|label }}</span>
         </a>
       {% endfor %}
     </div>
@@ -108,9 +108,9 @@
     <p class="zone-label">Meio</p>
     <div class="tent-row">
       {% for tent in tents if tent.zone == 'Meio' %}
-        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+        <a class="tent-spot status-{{ tent.status|label }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
           <span class="tent-num">{{ tent.number }}</span>
-          <span class="tent-status">{{ tent.status }}</span>
+          <span class="tent-status">{{ tent.status|label }}</span>
         </a>
       {% endfor %}
     </div>
@@ -120,9 +120,9 @@
     <p class="zone-label">Fundo</p>
     <div class="tent-row">
       {% for tent in tents if tent.zone == 'Fundo' %}
-        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+        <a class="tent-spot status-{{ tent.status|label }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
           <span class="tent-num">{{ tent.number }}</span>
-          <span class="tent-status">{{ tent.status }}</span>
+          <span class="tent-status">{{ tent.status|label }}</span>
         </a>
       {% endfor %}
     </div>

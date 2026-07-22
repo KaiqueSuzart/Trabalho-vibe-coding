@@ -298,6 +298,37 @@ def cart_view(number):
     return render_template("client/cart.html", tent=tent, lines=lines, total=total)
 
 
+@public_bp.route("/t/<int:number>/carrinho/update", methods=["POST"])
+def cart_update(number):
+    if session.get("client_tent") != number:
+        return redirect(url_for("public.tent_entry", number=number))
+    product_id = str(request.form["product_id"])
+    qty = int(request.form.get("quantity", 1))
+    cart = session.get("cart", {})
+    if product_id in cart:
+        if qty <= 0:
+            cart.pop(product_id, None)
+            flash("Item removido do carrinho.", "info")
+        else:
+            cart[product_id]["quantity"] = min(20, qty)
+            flash("Quantidade atualizada.", "success")
+        session["cart"] = cart
+    return redirect(url_for("public.cart_view", number=number))
+
+
+@public_bp.route("/t/<int:number>/carrinho/remove", methods=["POST"])
+def cart_remove(number):
+    if session.get("client_tent") != number:
+        return redirect(url_for("public.tent_entry", number=number))
+    product_id = str(request.form["product_id"])
+    cart = session.get("cart", {})
+    if product_id in cart:
+        cart.pop(product_id)
+        session["cart"] = cart
+        flash("Item removido.", "info")
+    return redirect(url_for("public.cart_view", number=number))
+
+
 @public_bp.route("/t/<int:number>/carrinho/clear", methods=["POST"])
 def cart_clear(number):
     session["cart"] = {}

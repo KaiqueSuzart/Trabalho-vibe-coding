@@ -2,21 +2,39 @@
 {% block title %}Carrinho — Tenda {{ tent.number }}{% endblock %}
 {% block content %}
 <section class="panel">
-  <h1>Carrinho — Tenda {{ tent.number }}</h1>
+  <div class="row-between">
+    <h1>Carrinho — Tenda {{ tent.number }}</h1>
+    <a class="btn btn-sm" href="{{ url_for('public.menu', number=tent.number) }}">Continuar pedindo</a>
+  </div>
+
   {% if not lines %}
-    <p class="muted">Carrinho vazio.</p>
-    <a class="btn" href="{{ url_for('public.menu', number=tent.number) }}">Voltar ao cardápio</a>
+    <div class="empty-state">
+      <p>Seu carrinho está vazio.</p>
+      <a class="btn btn-primary" href="{{ url_for('public.menu', number=tent.number) }}">Abrir cardápio</a>
+    </div>
   {% else %}
     <ul class="bill-lines cart-visual">
       {% for line in lines %}
-        <li>
+        <li class="cart-item-row">
           <div class="cart-line">
             {% if line.product.image_url %}
-              <span class="cart-thumb" style="background-image:url('{{ line.product.image_url }}')"></span>
+              <img class="cart-thumb" src="{{ line.product.image_url }}" alt="" onerror="this.style.display='none'">
             {% endif %}
             <div>
-              <strong>{{ line.quantity }}x {{ line.product.name }}</strong>
+              <strong>{{ line.product.name }}</strong>
               {% if line.notes %}<span class="muted"> — {{ line.notes }}</span>{% endif %}
+              <div class="cart-edit-row">
+                <form method="post" action="{{ url_for('public.cart_update', number=tent.number) }}" class="inline-form">
+                  <input type="hidden" name="product_id" value="{{ line.product.id }}">
+                  <button type="submit" name="quantity" value="{{ line.quantity - 1 }}" class="btn btn-sm qty-btn" {% if line.quantity <= 1 %}disabled{% endif %}>−</button>
+                  <span class="qty-val">{{ line.quantity }}</span>
+                  <button type="submit" name="quantity" value="{{ line.quantity + 1 }}" class="btn btn-sm qty-btn">+</button>
+                </form>
+                <form method="post" action="{{ url_for('public.cart_remove', number=tent.number) }}" class="inline" onsubmit="return confirm('Remover este item?')">
+                  <input type="hidden" name="product_id" value="{{ line.product.id }}">
+                  <button type="submit" class="btn btn-sm btn-ghost">Remover</button>
+                </form>
+              </div>
             </div>
           </div>
           <span>R$ {{ '%.2f'|format(line.subtotal) }}</span>
@@ -49,7 +67,7 @@
           <input type="radio" name="payment_mode" value="na_entrega">
           <span>
             <strong>Pagar na entrega</strong>
-            <small>Quando o garçom trouxer na tenda (dinheiro, PIX ou cartão)</small>
+            <small>Quando o garçom trouxer na tenda</small>
           </span>
         </label>
 
@@ -64,7 +82,7 @@
 
       <button type="submit" class="btn btn-primary">Confirmar pedido</button>
     </form>
-    <form method="post" action="{{ url_for('public.cart_clear', number=tent.number) }}">
+    <form method="post" action="{{ url_for('public.cart_clear', number=tent.number) }}" onsubmit="return confirm('Limpar todo o carrinho?')">
       <button type="submit" class="btn btn-ghost">Limpar carrinho</button>
     </form>
   {% endif %}
@@ -74,10 +92,13 @@
 <script>
 document.querySelectorAll('input[name="payment_mode"]').forEach((el) => {
   el.addEventListener("change", () => {
-    document.getElementById("online-methods").style.display =
-      document.querySelector('input[name="payment_mode"]:checked').value === "online"
-        ? "flex"
-        : "none";
+    const box = document.getElementById("online-methods");
+    if (box) {
+      box.style.display =
+        document.querySelector('input[name="payment_mode"]:checked').value === "online"
+          ? "flex"
+          : "none";
+    }
   });
 });
 </script>

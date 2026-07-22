@@ -3,19 +3,20 @@
 {% block content %}
 <section class="panel narrow">
   <h1>Check-in de tenda</h1>
+  <p class="notice">PIN do dia para o cliente: <strong>{{ day_pin }}</strong></p>
   <form method="post" class="stack">
     <label>Tenda
       <select name="tent_id" required>
         {% for tent in tents %}
-          <option value="{{ tent.id }}">Nº {{ tent.number }} — {{ tent.status }} ({{ tent.zone }})</option>
+          <option value="{{ tent.id }}">Nº {{ tent.number }} — {{ tent.status|label }} ({{ tent.zone }})</option>
         {% endfor %}
       </select>
     </label>
-    <label>Reserva (opcional)
+    <label>Reserva de hoje (opcional)
       <select name="reservation_id">
         <option value="">Sem reserva / walk-in</option>
         {% for r in reservations %}
-          <option value="{{ r.id }}">Tenda {{ r.tent.number }} — {{ r.customer_name }} ({{ r.date }})</option>
+          <option value="{{ r.id }}">Tenda {{ r.tent.number }} — {{ r.customer_name }}</option>
         {% endfor %}
       </select>
     </label>
@@ -27,6 +28,5 @@
     </label>
     <button type="submit" class="btn btn-primary">Abrir sessão</button>
   </form>
-  <p class="hint">PIN do dia para o cliente: <strong>1234</strong></p>
 </section>
 {% endblock %}

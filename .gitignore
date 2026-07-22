@@ -8,3 +8,5 @@ barraca.db
 .idea/
 .vscode/
 *.log
+.env
+.env.local

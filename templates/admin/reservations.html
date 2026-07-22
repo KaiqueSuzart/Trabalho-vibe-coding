@@ -4,7 +4,7 @@
 <section class="panel">
   <div class="row-between">
     <h1>Reservas</h1>
-    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+    {% include "admin/_nav.html" %}
   </div>
   <div class="table-wrap">
     <table>
@@ -16,7 +16,7 @@
           <td>{{ r.tent.number }}</td>
           <td>{{ r.customer_name }} <span class="muted">{{ r.customer_phone }}</span></td>
           <td>R$ {{ '%.2f'|format(r.value) }}</td>
-          <td><span class="badge status-{{ r.status }}">{{ r.status }}</span></td>
+          <td><span class="badge status-{{ r.status|label }}">{{ r.status|label }}</span></td>
           <td>
             {% if r.status in ['confirmada','pendente'] %}
             <form method="post" action="{{ url_for('admin.cancel_reservation', res_id=r.id) }}">

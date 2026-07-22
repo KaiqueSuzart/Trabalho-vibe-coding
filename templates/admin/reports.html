@@ -4,7 +4,7 @@
 <section class="panel">
   <div class="row-between">
     <h1>Relatórios — {{ today.strftime('%d/%m/%Y') }}</h1>
-    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+    {% include "admin/_nav.html" %}
   </div>
 
   <h2>Ocupação atual</h2>
@@ -36,7 +36,7 @@
   <h2>Sessões abertas hoje</h2>
   <ul>
     {% for s in sessions_today %}
-      <li>Tenda {{ s.tent.number }} — {{ s.customer_name }} — {{ s.status }}
+      <li>Tenda {{ s.tent.number }} — {{ s.customer_name }} — {{ s.status|label }}
         {% if s.is_open %}(aberto R$ {{ '%.2f'|format(session_open_total(s)) }}){% endif %}
       </li>
     {% else %}

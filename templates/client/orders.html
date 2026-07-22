@@ -7,13 +7,16 @@
     <a class="btn btn-sm" href="{{ url_for('public.menu', number=tent.number) }}">Cardápio</a>
   </div>
   {% if not orders %}
-    <p class="muted">Nenhum pedido ainda.</p>
+    <div class="empty-state">
+      <p>Nenhum pedido ainda.</p>
+      <a class="btn btn-primary" href="{{ url_for('public.menu', number=tent.number) }}">Ir ao cardápio</a>
+    </div>
   {% else %}
     {% for order in orders %}
       <article class="order-card">
         <header>
           <strong>#{{ order.id }}</strong>
-          <span class="badge status-{{ order.status }}">{{ order.status }}</span>
+          <span class="badge status-{{ order.status|label }}">{{ order.status|label }}</span>
           <span class="muted">{{ order.created_at.strftime('%H:%M') }}</span>
         </header>
         <p class="pay-tag">
@@ -32,7 +35,7 @@
         </p>
         <ul>
           {% for item in order.items %}
-            <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status }}</em></li>
+            <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status|label }}</em></li>
           {% endfor %}
         </ul>
         <p class="price">R$ {{ '%.2f'|format(order.total) }}</p>

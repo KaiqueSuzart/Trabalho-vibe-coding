@@ -11,6 +11,7 @@
       <a class="btn btn-sm" href="{{ url_for('kitchen.dashboard') }}">Cozinha/Bar</a>
     </div>
   </div>
+  <p class="notice">PIN do dia para clientes: <strong>{{ day_pin }}</strong></p>
 
   {% if close_requests %}
   <h2>Fechamentos solicitados</h2>
@@ -34,10 +35,10 @@
         <article class="mini-card">
           <span class="tent-pill">Tenda {{ order.session.tent.number }}</span>
           <strong>Pedido #{{ order.id }}</strong>
-          <p><span class="badge status-{{ order.status }}">{{ order.status }}</span></p>
+          <p><span class="badge status-{{ order.status|label }}">{{ order.status|label }}</span></p>
           <ul class="compact-list">
             {% for item in order.items if item.sector != 'servico' %}
-              <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status }}</em></li>
+              <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status|label }}</em></li>
             {% endfor %}
           </ul>
           <p class="pay-tag">
@@ -102,7 +103,7 @@
         <tr>
           <td>{{ s.tent.number }}</td>
           <td>{{ s.customer_name }}</td>
-          <td><span class="badge status-{{ s.status }}">{{ s.status }}</span></td>
+          <td><span class="badge status-{{ s.status|label }}">{{ s.status|label }}</span></td>
           <td><a href="{{ url_for('waiter.close_bill', session_id=s.id) }}">Conta</a></td>
         </tr>
         {% else %}

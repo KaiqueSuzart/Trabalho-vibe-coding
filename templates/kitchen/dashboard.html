@@ -13,7 +13,10 @@
   </div>
 
   {% if not items %}
-    <p class="muted">Fila vazia.</p>
+    <div class="empty-state">
+      <p>Fila vazia — nenhum item para preparar agora.</p>
+      <a class="btn" href="{{ url_for('waiter.dashboard') }}">Ver painel do garçom</a>
+    </div>
   {% else %}
     <div class="kds-grid">
       {% for item in items %}
@@ -21,7 +24,7 @@
           <span class="tent-pill">Tenda {{ item.order.session.tent.number }}</span>
           <h3>{{ item.quantity }}x {{ item.product_name }}</h3>
           {% if item.notes %}<p class="muted">{{ item.notes }}</p>{% endif %}
-          <p><span class="badge status-{{ item.status }}">{{ item.status }}</span> · {{ item.sector }}</p>
+          <p><span class="badge status-{{ item.status|label }}">{{ item.status|label }}</span> · {{ item.sector }}</p>
           <div class="cta-row">
             {% if item.status == 'recebido' %}
             <form method="post" action="{{ url_for('kitchen.update_status', item_id=item.id, setor=sector) }}">

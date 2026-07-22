@@ -4,7 +4,7 @@
 <section class="panel">
   <div class="row-between">
     <h1>Estoque</h1>
-    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+    {% include "admin/_nav.html" %}
   </div>
 
   <form method="post" class="stack form-grid">

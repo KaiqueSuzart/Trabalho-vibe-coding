@@ -4,21 +4,10 @@
 <section class="panel">
   <div class="row-between">
     <h1>Painel do lojista</h1>
-    <nav class="cta-row wrap">
-      <a class="btn btn-sm" href="{{ url_for('admin.products') }}">Produtos</a>
-      <a class="btn btn-sm" href="{{ url_for('admin.categories') }}">Categorias</a>
-      <a class="btn btn-sm" href="{{ url_for('admin.tents') }}">Tendas</a>
-      <a class="btn btn-sm" href="{{ url_for('admin.stock') }}">Estoque</a>
-      <a class="btn btn-sm" href="{{ url_for('admin.users') }}">Usuários</a>
-      <a class="btn btn-sm" href="{{ url_for('admin.reservations') }}">Reservas</a>
-      <a class="btn btn-sm" href="{{ url_for('admin.tent_map') }}">Mapa</a>
-      <a class="btn btn-sm" href="{{ url_for('admin.reports') }}">Relatórios</a>
-      <a class="btn btn-sm" href="{{ url_for('waiter.dashboard') }}">Garçom</a>
-      <a class="btn btn-sm" href="{{ url_for('kitchen.dashboard') }}">Cozinha</a>
-    </nav>
   </div>
+  {% include "admin/_nav.html" %}
 
-  <p class="muted">Resumo de {{ today.strftime('%d/%m/%Y') }}</p>
+  <p class="muted" style="margin-top:1rem">Resumo de {{ today.strftime('%d/%m/%Y') }}</p>
   <div class="stats">
     <div class="stat"><span>Faturamento</span><strong>R$ {{ '%.2f'|format(revenue) }}</strong></div>
     <div class="stat"><span>Ticket médio</span><strong>R$ {{ '%.2f'|format(ticket_avg) }}</strong></div>

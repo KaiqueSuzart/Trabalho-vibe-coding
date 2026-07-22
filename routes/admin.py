@@ -87,6 +87,7 @@ def products():
                 stock_qty=int(request.form.get("stock_qty", 0)),
                 stock_min=int(request.form.get("stock_min", 5)),
                 kind=request.form.get("kind", "produto"),
+                image_url=request.form.get("image_url", "").strip(),
                 available=True,
             )
             db.session.add(product)
@@ -103,6 +104,8 @@ def products():
             product.price = float(request.form["price"])
             product.description = request.form.get("description", "").strip()
             product.stock_min = int(request.form.get("stock_min", product.stock_min))
+            if "image_url" in request.form:
+                product.image_url = request.form.get("image_url", "").strip()
             db.session.commit()
             flash("Produto atualizado.", "success")
         return redirect(url_for("admin.products"))
