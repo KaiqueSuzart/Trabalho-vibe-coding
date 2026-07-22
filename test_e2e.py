@@ -213,6 +213,12 @@ def main():
     with app.app_context():
         p = Product.query.get(pid)
         ok(p.stock_qty == 15, f"estoque 15 (foi {p.stock_qty})")
+        # limpa produto de teste para não aparecer no cardápio demo
+        from models import StockMovement
+
+        StockMovement.query.filter_by(product_id=pid).delete()
+        db.session.delete(p)
+        db.session.commit()
     r = admin.get("/admin/relatorios")
     ok(r.status_code == 200, "relatorios")
     r = admin.get("/admin/reservas")
