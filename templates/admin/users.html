@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Usuários{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <h1>Usuários</h1>
+    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+  </div>
+
+  <form method="post" class="stack form-grid">
+    <input type="hidden" name="action" value="create">
+    <label>Nome <input name="name" required></label>
+    <label>Usuário <input name="username" required></label>
+    <label>Senha <input type="password" name="password" required></label>
+    <label>Papel
+      <select name="role">
+        <option value="garcom">garcom</option>
+        <option value="lojista">lojista</option>
+      </select>
+    </label>
+    <button class="btn btn-primary" type="submit">Criar</button>
+  </form>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nome</th><th>Login</th><th>Papel</th><th>Ativo</th><th></th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.name }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.role }}</td>
+          <td>{{ 'sim' if u.active else 'não' }}</td>
+          <td>
+            <form method="post" class="inline">
+              <input type="hidden" name="action" value="toggle">
+              <input type="hidden" name="user_id" value="{{ u.id }}">
+              <button class="btn btn-sm" type="submit">Ativar/Desativar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

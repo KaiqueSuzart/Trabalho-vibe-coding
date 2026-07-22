@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Maré Clara — Barraca de Praia{% endblock %}
+{% block body_class %}page-home{% endblock %}
+{% block main_class %}main-home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-veil"></div>
+  <div class="hero-copy">
+    <p class="brand-hero">Maré Clara</p>
+    <h1 class="hero-line">Peça na tenda.<br>Receba na areia.</h1>
+    <p class="lede">Cardápio no celular, entrega no sombreiro — sem ficar acenando pro garçom.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="{{ url_for('public.order_start') }}">Pedir agora</a>
+      <a class="btn btn-ghost" href="{{ url_for('public.menu_browse') }}">Ver cardápio</a>
+    </div>
+  </div>
+</section>
+
+<section id="pedir" class="order-section">
+  <div class="order-section-grid">
+    <div>
+      <p class="eyebrow-dark">Na sua mesa / tenda</p>
+      <h2>Já acomodou? Peça daqui</h2>
+      <p class="muted">Informe o número da tenda e o PIN. Escolha bebidas, porções e lanches — a cozinha recebe na hora.</p>
+      <ol class="steps">
+        <li>Garçom faz o check-in da tenda</li>
+        <li>Você entra com o número + PIN</li>
+        <li>Monta o pedido e acompanha o status</li>
+      </ol>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="{{ url_for('public.order_start') }}">Ir para pedir</a>
+        <a class="btn" href="{{ url_for('public.reserve') }}">Reservar tenda</a>
+      </div>
+    </div>
+    <form class="panel order-mini" method="post" action="{{ url_for('public.order_start') }}">
+      <h3>Atalho rápido</h3>
+      <label>Nº da tenda
+        <input type="number" name="tent_number" min="1" placeholder="Ex.: 12" required>
+      </label>
+      <label>PIN do dia
+        <input type="password" name="pin" inputmode="numeric" placeholder="1234" required>
+      </label>
+      <button type="submit" class="btn btn-primary">Abrir cardápio</button>
+      <p class="hint">PIN demo: 1234</p>
+    </form>
+  </div>
+</section>
+
+<section id="cardapio" class="map-section preview-menu">
+  <div class="map-head carousel-head">
+    <div>
+      <h2>Cardápio</h2>
+      <p>Deslize para ver. <a href="{{ url_for('public.menu_browse') }}">Ver tudo</a></p>
+    </div>
+    <div class="carousel-nav">
+      <button type="button" class="carousel-btn" data-carousel-prev aria-label="Anterior">‹</button>
+      <button type="button" class="carousel-btn" data-carousel-next aria-label="Próximo">›</button>
+    </div>
+  </div>
+
+  <div class="carousel" data-carousel>
+    <div class="carousel-track" data-carousel-track>
+      {% for category in categories if category.sector != 'servico' %}
+        {% for product in category.products if product.available %}
+          <article class="carousel-slide">
+            <a class="carousel-card" href="{{ url_for('public.order_start') }}">
+              <img
+                class="carousel-photo"
+                src="{{ product.image_url or url_for('static', filename='img/products/placeholder.svg') }}"
+                alt="{{ product.name }}"
+                loading="lazy"
+                onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/products/placeholder.svg') }}'"
+              >
+              <span class="carousel-body">
+                <span class="carousel-cat">{{ category.name }}</span>
+                <strong>{{ product.name }}</strong>
+                <span class="muted">{{ product.description }}</span>
+                <span class="price">R$ {{ '%.2f'|format(product.price) }}</span>
+              </span>
+            </a>
+          </article>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="carousel-dots" data-carousel-dots></div>
+</section>
+
+<section id="mapa" class="map-section">
+  <div class="map-head">
+    <h2>Mapa das tendas</h2>
+    <p>Toque no número da sua tenda para pedir. PIN: <strong>1234</strong></p>
+  </div>
+
+  <div class="zone-block">
+    <p class="zone-label">Frente Mar</p>
+    <div class="tent-row">
+      {% for tent in tents if tent.zone == 'Frente Mar' %}
+        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+          <span class="tent-num">{{ tent.number }}</span>
+          <span class="tent-status">{{ tent.status }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="zone-block">
+    <p class="zone-label">Meio</p>
+    <div class="tent-row">
+      {% for tent in tents if tent.zone == 'Meio' %}
+        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+          <span class="tent-num">{{ tent.number }}</span>
+          <span class="tent-status">{{ tent.status }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="zone-block">
+    <p class="zone-label">Fundo</p>
+    <div class="tent-row">
+      {% for tent in tents if tent.zone == 'Fundo' %}
+        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+          <span class="tent-num">{{ tent.number }}</span>
+          <span class="tent-status">{{ tent.status }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot livre"></i> Livre</span>
+    <span><i class="dot reservada"></i> Reservada</span>
+    <span><i class="dot ocupada"></i> Ocupada</span>
+    <span><i class="dot manutencao"></i> Manutenção</span>
+  </div>
+</section>
+{% endblock %}

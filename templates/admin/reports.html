@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Relatórios{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <h1>Relatórios — {{ today.strftime('%d/%m/%Y') }}</h1>
+    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+  </div>
+
+  <h2>Ocupação atual</h2>
+  <ul>
+    {% for status, count in occupancy.items() %}
+      <li>{{ status }}: {{ count }}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Pagamentos do dia</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Hora</th><th>Tenda</th><th>Método</th><th>Valor</th></tr></thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td>{{ p.created_at.strftime('%H:%M') }}</td>
+          <td>{{ p.session.tent.number }}</td>
+          <td>{{ p.method }}</td>
+          <td>R$ {{ '%.2f'|format(p.amount) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">Sem pagamentos</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Sessões abertas hoje</h2>
+  <ul>
+    {% for s in sessions_today %}
+      <li>Tenda {{ s.tent.number }} — {{ s.customer_name }} — {{ s.status }}
+        {% if s.is_open %}(aberto R$ {{ '%.2f'|format(session_open_total(s)) }}){% endif %}
+      </li>
+    {% else %}
+      <li class="muted">Nenhuma</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Pedidos do dia</h2>
+  <ul>
+    {% for o in orders_today %}
+      <li>#{{ o.id }} · Tenda {{ o.session.tent.number }} · {{ o.status }} · R$ {{ '%.2f'|format(o.total) }} · {{ o.source }}</li>
+    {% else %}
+      <li class="muted">Nenhum pedido</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

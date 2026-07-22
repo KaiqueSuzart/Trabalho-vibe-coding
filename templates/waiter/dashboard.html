@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Painel Garçom{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <h1>Painel do garçom</h1>
+    <div class="cta-row">
+      <a class="btn btn-sm" href="{{ url_for('waiter.checkin') }}">Check-in</a>
+      <a class="btn btn-sm" href="{{ url_for('waiter.manual_order') }}">Pedido manual</a>
+      <a class="btn btn-sm" href="{{ url_for('waiter.tent_map') }}">Mapa</a>
+      <a class="btn btn-sm" href="{{ url_for('kitchen.dashboard') }}">Cozinha/Bar</a>
+    </div>
+  </div>
+
+  {% if close_requests %}
+  <h2>Fechamentos solicitados</h2>
+  <div class="card-grid">
+    {% for s in close_requests %}
+      <article class="mini-card alert">
+        <strong>Tenda {{ s.tent.number }}</strong>
+        <p>{{ s.customer_name }}</p>
+        <a class="btn btn-sm btn-primary" href="{{ url_for('waiter.close_bill', session_id=s.id) }}">Fechar conta</a>
+      </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h2>Pedidos em andamento</h2>
+  {% if not pending_orders %}
+    <p class="muted">Nenhum pedido ativo agora.</p>
+  {% else %}
+    <div class="card-grid">
+      {% for order in pending_orders %}
+        <article class="mini-card">
+          <span class="tent-pill">Tenda {{ order.session.tent.number }}</span>
+          <strong>Pedido #{{ order.id }}</strong>
+          <p><span class="badge status-{{ order.status }}">{{ order.status }}</span></p>
+          <ul class="compact-list">
+            {% for item in order.items if item.sector != 'servico' %}
+              <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status }}</em></li>
+            {% endfor %}
+          </ul>
+          <p class="pay-tag">
+            {% if order.payment_status == 'pago' %}Pago
+            {% elif order.payment_mode == 'na_entrega' %}Cobrar na entrega
+            {% elif order.payment_mode == 'online' and order.payment_status == 'pendente' %}Aguardando PIX/cartão
+            {% else %}Na conta · R$ {{ '%.2f'|format(order.total) }}
+            {% endif %}
+          </p>
+          {% if order.status == 'pronto' %}
+            <p class="hint">Itens prontos — veja abaixo para entregar.</p>
+          {% else %}
+            <a class="btn btn-sm" href="{{ url_for('kitchen.dashboard') }}">Ver na cozinha</a>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <h2>Prontos para entregar</h2>
+  {% if not ready_items %}
+    <p class="muted">Nada pronto no momento. Quando a cozinha marcar “Pronto”, aparece aqui.</p>
+  {% else %}
+    <div class="card-grid">
+      {% for item in ready_items %}
+        <article class="mini-card">
+          <span class="tent-pill">Tenda {{ item.order.session.tent.number }}</span>
+          <strong>{{ item.quantity }}x {{ item.product_name }}</strong>
+          <p class="muted">Pedido #{{ item.order_id }}</p>
+          {% if item.order.payment_status == 'pago' %}
+            <p class="pay-tag ok">Já pago</p>
+          {% elif item.order.payment_mode == 'na_entrega' %}
+            <p class="pay-tag warn">Cobrar na entrega (R$ {{ '%.2f'|format(item.order.total) }})</p>
+          {% elif item.order.payment_mode == 'na_conta' %}
+            <p class="pay-tag">Na conta</p>
+          {% endif %}
+          <form method="post" action="{{ url_for('waiter.deliver_item', item_id=item.id) }}" class="stack">
+            {% if item.order.payment_status == 'cobrar_entrega' %}
+              <label class="chip">
+                <input type="checkbox" name="collect_payment" value="1" checked>
+                Registrar pagamento
+              </label>
+              <select name="method">
+                <option value="dinheiro">Dinheiro</option>
+                <option value="pix">PIX</option>
+                <option value="cartao">Cartão</option>
+              </select>
+            {% endif %}
+            <button class="btn btn-sm btn-primary" type="submit">Entregar</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <h2>Sessões abertas</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tenda</th><th>Cliente</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for s in open_sessions %}
+        <tr>
+          <td>{{ s.tent.number }}</td>
+          <td>{{ s.customer_name }}</td>
+          <td><span class="badge status-{{ s.status }}">{{ s.status }}</span></td>
+          <td><a href="{{ url_for('waiter.close_bill', session_id=s.id) }}">Conta</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">Nenhuma sessão aberta</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>setInterval(() => location.reload(), 10000);</script>
+{% endblock %}

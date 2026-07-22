@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+barraca.db
+*.db-journal
+.DS_Store
+.idea/
+.vscode/
+*.log

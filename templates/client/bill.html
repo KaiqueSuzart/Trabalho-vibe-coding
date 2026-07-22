@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Conta — Tenda {{ tent.number }}{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Conta da tenda {{ tent.number }}</h1>
+  {% if open_session %}
+    <p class="badge status-{{ open_session.status }}">{{ open_session.status }}</p>
+
+    {% for order in open_session.orders if order.status != 'cancelado' %}
+    <article class="order-card bill-order {% if order.payment_status == 'pago' %}is-paid{% endif %}">
+      <header class="row-between">
+        <div>
+          <strong>Pedido #{{ order.id }}</strong>
+          <span class="badge status-{{ order.status }}">{{ order.status }}</span>
+        </div>
+        <div class="pay-badges">
+          {% if order.payment_status == 'pago' %}
+            <span class="tag tag-ok">Pago</span>
+          {% elif order.payment_mode == 'na_entrega' %}
+            <span class="tag tag-warn">Pagar na entrega</span>
+          {% elif order.payment_mode == 'online' and order.payment_status != 'pago' %}
+            <span class="tag tag-warn">
+              <a href="{{ url_for('public.pay_order', number=tent.number, order_id=order.id) }}">Pagar agora</a>
+            </span>
+          {% else %}
+            <span class="tag tag-open">Na conta</span>
+          {% endif %}
+          <strong>R$ {{ '%.2f'|format(order.total) }}</strong>
+        </div>
+      </header>
+      <ul class="bill-lines detailed">
+        {% for item in order.items if item.status != 'cancelado' %}
+        <li>
+          <div class="item-main">
+            <span>{{ item.quantity }}x {{ item.product_name }}</span>
+            <span class="badge status-{{ item.status }}">{{ item.status }}</span>
+          </div>
+          <span>R$ {{ '%.2f'|format(item.subtotal) }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </article>
+    {% endfor %}
+
+    <div class="totals-box">
+      <p>Consumo total: <strong>R$ {{ '%.2f'|format(total_gross) }}</strong></p>
+      <p>Já pago: R$ {{ '%.2f'|format(paid) }}</p>
+      <p>Em aberto: <strong>R$ {{ '%.2f'|format(total) }}</strong></p>
+    </div>
+    {% if open_session.status == 'aberta' %}
+      <form method="post" action="{{ url_for('public.request_close', number=tent.number) }}">
+        <button type="submit" class="btn btn-primary">Solicitar fechamento</button>
+      </form>
+    {% else %}
+      <p class="notice">Fechamento solicitado — aguarde o garçom.</p>
+    {% endif %}
+  {% endif %}
+  <a class="btn btn-ghost" href="{{ url_for('public.menu', number=tent.number) }}">Voltar</a>
+</section>
+{% endblock %}

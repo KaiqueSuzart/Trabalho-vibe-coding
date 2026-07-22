@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Painel Lojista{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <h1>Painel do lojista</h1>
+    <nav class="cta-row wrap">
+      <a class="btn btn-sm" href="{{ url_for('admin.products') }}">Produtos</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.categories') }}">Categorias</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.tents') }}">Tendas</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.stock') }}">Estoque</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.users') }}">Usuários</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.reservations') }}">Reservas</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.tent_map') }}">Mapa</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.reports') }}">Relatórios</a>
+      <a class="btn btn-sm" href="{{ url_for('waiter.dashboard') }}">Garçom</a>
+      <a class="btn btn-sm" href="{{ url_for('kitchen.dashboard') }}">Cozinha</a>
+    </nav>
+  </div>
+
+  <p class="muted">Resumo de {{ today.strftime('%d/%m/%Y') }}</p>
+  <div class="stats">
+    <div class="stat"><span>Faturamento</span><strong>R$ {{ '%.2f'|format(revenue) }}</strong></div>
+    <div class="stat"><span>Ticket médio</span><strong>R$ {{ '%.2f'|format(ticket_avg) }}</strong></div>
+    <div class="stat"><span>Contas fechadas</span><strong>{{ closed_sessions }}</strong></div>
+    <div class="stat"><span>Sessões abertas</span><strong>{{ open_sessions }}</strong></div>
+    <div class="stat"><span>Ocupação</span><strong>{{ occupied }}/{{ total_tents }}</strong></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h2>Pagamentos por método</h2>
+      {% if by_method %}
+        <ul>
+          {% for method, value in by_method.items() %}
+            <li>{{ method }}: R$ {{ '%.2f'|format(value) }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">Sem pagamentos hoje.</p>
+      {% endif %}
+    </div>
+    <div>
+      <h2>Top produtos</h2>
+      {% if top_products %}
+        <ol>
+          {% for name, qty in top_products %}
+            <li>{{ name }} — {{ qty }} un.</li>
+          {% endfor %}
+        </ol>
+      {% else %}
+        <p class="muted">Sem vendas ainda.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if low_stock %}
+  <h2>Alerta de estoque baixo</h2>
+  <ul class="alert-list">
+    {% for p in low_stock %}
+      <li>{{ p.name }}: {{ p.stock_qty }} (mín. {{ p.stock_min }})</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% endblock %}

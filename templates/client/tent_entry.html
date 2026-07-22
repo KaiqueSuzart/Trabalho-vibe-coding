@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Tenda {{ tent.number }}{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Tenda {{ tent.number }}</h1>
+  <p class="muted">{{ tent.zone }} · {{ tent.capacity }} pessoas · R$ {{ '%.2f'|format(tent.daily_price) }}/dia</p>
+  <p class="badge status-{{ tent.status }}">{{ tent.status }}</p>
+
+  {% if open_session %}
+    <p>Sessão aberta para <strong>{{ open_session.customer_name }}</strong>.</p>
+  {% else %}
+    <div class="notice">
+      <p>Com o PIN do dia você abre a tenda e já pode pedir (reserva de hoje ou tenda livre).</p>
+    </div>
+  {% endif %}
+
+  <form method="post" class="stack">
+    <label>PIN do dia
+      <input type="password" name="pin" inputmode="numeric" placeholder="1234" required>
+    </label>
+    <button type="submit" class="btn btn-primary">Entrar no cardápio</button>
+  </form>
+</section>
+{% endblock %}

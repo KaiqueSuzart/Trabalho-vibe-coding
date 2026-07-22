@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Reservas{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <h1>Reservas</h1>
+    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Data</th><th>Tenda</th><th>Cliente</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for r in reservations %}
+        <tr>
+          <td>{{ r.date.strftime('%d/%m/%Y') }} · {{ r.time_slot }}</td>
+          <td>{{ r.tent.number }}</td>
+          <td>{{ r.customer_name }} <span class="muted">{{ r.customer_phone }}</span></td>
+          <td>R$ {{ '%.2f'|format(r.value) }}</td>
+          <td><span class="badge status-{{ r.status }}">{{ r.status }}</span></td>
+          <td>
+            {% if r.status in ['confirmada','pendente'] %}
+            <form method="post" action="{{ url_for('admin.cancel_reservation', res_id=r.id) }}">
+              <button class="btn btn-sm" type="submit">Cancelar</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="muted">Nenhuma reserva</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

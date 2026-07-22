@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Mapa — Lojista{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <h1>Mapa de ocupação</h1>
+    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+  </div>
+  <div class="tent-grid">
+    {% for tent in tents %}
+      <div class="tent-card status-{{ tent.status }}">
+        <span class="tent-num">{{ tent.number }}</span>
+        <span class="tent-meta">{{ tent.zone }} · {{ tent.capacity }}p</span>
+        <span class="tent-status">{{ tent.status }}</span>
+        <span class="muted">R$ {{ '%.0f'|format(tent.daily_price) }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="legend">
+    <span><i class="dot livre"></i> Livre</span>
+    <span><i class="dot reservada"></i> Reservada</span>
+    <span><i class="dot ocupada"></i> Ocupada</span>
+    <span><i class="dot manutencao"></i> Manutenção</span>
+  </div>
+</section>
+{% endblock %}

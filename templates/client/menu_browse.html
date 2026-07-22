@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Cardápio — Maré Clara{% endblock %}
+{% block content %}
+<section class="menu-browse">
+  <div class="row-between">
+    <div>
+      <p class="eyebrow-dark">Cardápio</p>
+      <h1>O que tem na barraca</h1>
+      <p class="muted">Toque nos itens depois de entrar na sua tenda para pedir.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('public.order_start') }}">Pedir na minha tenda</a>
+  </div>
+
+  {% for category in categories %}
+    {% set items = category.products|selectattr('available')|list %}
+    {% if items and category.sector != 'servico' %}
+    <section class="menu-cat">
+      <h2>{{ category.name }}</h2>
+      <div class="product-grid">
+        {% for product in items %}
+          <article class="product-card static">
+            <img
+              class="product-photo"
+              src="{{ product.image_url or url_for('static', filename='img/products/placeholder.svg') }}"
+              alt="{{ product.name }}"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/products/placeholder.svg') }}'"
+            >
+            <span class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-desc">{{ product.description }}</span>
+              <span class="price">R$ {{ '%.2f'|format(product.price) }}</span>
+            </span>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  {% endfor %}
+
+  <div class="browse-cta">
+    <p>Já está na areia?</p>
+    <a class="btn btn-primary" href="{{ url_for('public.order_start') }}">Pedir agora</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Reservar tenda{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Reservar tenda</h1>
+  <form method="post" class="stack">
+    <label>Tenda
+      <select name="tent_id" required>
+        {% for tent in tents %}
+          <option value="{{ tent.id }}">Nº {{ tent.number }} — {{ tent.zone }} (R$ {{ '%.2f'|format(tent.daily_price) }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Data
+      <input type="date" name="date" value="{{ today }}" required>
+    </label>
+    <label>Período
+      <select name="time_slot">
+        <option>dia todo</option>
+        <option>manhã</option>
+        <option>tarde</option>
+      </select>
+    </label>
+    <label>Seu nome
+      <input type="text" name="customer_name" required>
+    </label>
+    <label>Telefone
+      <input type="tel" name="customer_phone" placeholder="(11) 99999-9999">
+    </label>
+    <button type="submit" class="btn btn-primary">Confirmar reserva</button>
+  </form>
+</section>
+{% endblock %}

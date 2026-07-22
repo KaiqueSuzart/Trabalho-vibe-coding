@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Estoque{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <h1>Estoque</h1>
+    <a class="btn btn-sm" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+  </div>
+
+  <form method="post" class="stack form-grid">
+    <label>Produto
+      <select name="product_id">
+        {% for p in products %}
+          <option value="{{ p.id }}">{{ p.name }} (atual: {{ p.stock_qty }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Quantidade (+ entrada / − saída)
+      <input type="number" name="quantity" required>
+    </label>
+    <label>Motivo <input name="reason" value="Ajuste manual"></label>
+    <button class="btn btn-primary" type="submit">Registrar</button>
+  </form>
+
+  <h2>Produtos</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Produto</th><th>Qtd</th><th>Mín</th></tr></thead>
+      <tbody>
+        {% for p in products %}
+        <tr class="{% if p.stock_qty <= p.stock_min %}row-alert{% endif %}">
+          <td>{{ p.name }}</td>
+          <td>{{ p.stock_qty }}</td>
+          <td>{{ p.stock_min }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Últimas movimentações</h2>
+  <ul>
+    {% for m in movements %}
+      <li>{{ m.created_at.strftime('%d/%m %H:%M') }} — {{ m.product.name }}: {{ m.quantity }} ({{ m.reason }})</li>
+    {% else %}
+      <li class="muted">Sem movimentos</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

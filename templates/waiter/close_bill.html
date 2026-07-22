@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Conta — Tenda {{ tent_session.tent.number }}{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="row-between">
+    <div>
+      <h1>Conta — Tenda {{ tent_session.tent.number }}</h1>
+      <p>{{ tent_session.customer_name }} · <span class="badge status-{{ tent_session.status }}">{{ tent_session.status }}</span></p>
+    </div>
+    <a class="btn btn-sm" href="{{ url_for('waiter.dashboard') }}">Voltar</a>
+  </div>
+
+  <div class="bill-legend">
+    <span><i class="dot livre"></i> Entregue / Pago</span>
+    <span><i class="dot reservada"></i> Em preparo</span>
+    <span><i class="dot ocupada"></i> Em aberto / cobrar</span>
+  </div>
+
+  {% for order in orders if order.status != 'cancelado' %}
+  <article class="order-card bill-order {% if order.payment_status == 'pago' %}is-paid{% endif %}">
+    <header class="row-between">
+      <div>
+        <strong>Pedido #{{ order.id }}</strong>
+        <span class="muted">{{ order.created_at.strftime('%H:%M') if order.created_at else '' }}</span>
+        <span class="badge status-{{ order.status }}">{{ order.status }}</span>
+      </div>
+      <div class="pay-badges">
+        {% if order.payment_status == 'pago' %}
+          <span class="tag tag-ok">Pago{% if order.payment_method %} · {{ order.payment_method }}{% endif %}</span>
+        {% elif order.payment_mode == 'na_entrega' %}
+          <span class="tag tag-warn">Cobrar na entrega</span>
+        {% elif order.payment_mode == 'online' %}
+          <span class="tag tag-warn">Online pendente</span>
+        {% else %}
+          <span class="tag tag-open">Na conta</span>
+        {% endif %}
+        <strong>R$ {{ '%.2f'|format(order.total) }}</strong>
+      </div>
+    </header>
+
+    <ul class="bill-lines detailed">
+      {% for item in order.items if item.status != 'cancelado' %}
+      <li>
+        <div class="item-main">
+          <span>{{ item.quantity }}x {{ item.product_name }}</span>
+          <span class="badge status-{{ item.status }}">{{ item.status }}</span>
+          {% if item.notes %}<span class="muted">{{ item.notes }}</span>{% endif %}
+        </div>
+        <div class="item-actions">
+          <span>R$ {{ '%.2f'|format(item.subtotal) }}</span>
+          {% if tent_session.status != 'fechada' and item.status != 'entregue' and item.sector != 'servico' %}
+          <form method="post" class="inline">
+            <input type="hidden" name="action" value="deliver_item">
+            <input type="hidden" name="item_id" value="{{ item.id }}">
+            <button type="submit" class="btn btn-sm">Dar baixa entrega</button>
+          </form>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+
+    {% if tent_session.status != 'fechada' and order.payment_status != 'pago' %}
+    <form method="post" class="pay-order-row">
+      <input type="hidden" name="action" value="pay_order">
+      <input type="hidden" name="order_id" value="{{ order.id }}">
+      <select name="method">
+        <option value="pix">PIX</option>
+        <option value="dinheiro">Dinheiro</option>
+        <option value="cartao">Cartão</option>
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">Dar baixa pagamento (R$ {{ '%.2f'|format(order.total) }})</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}
+    <p class="muted">Nenhum consumo nesta sessão.</p>
+  {% endfor %}
+
+  {% set ready_count = namespace(n=0) %}
+  {% for order in orders %}
+    {% for item in order.items if item.status == 'pronto' %}
+      {% set ready_count.n = ready_count.n + 1 %}
+    {% endfor %}
+  {% endfor %}
+  {% if tent_session.status != 'fechada' and ready_count.n > 0 %}
+  <form method="post" style="margin: 0.75rem 0 1.25rem">
+    <input type="hidden" name="action" value="mark_ready_delivered">
+    <button type="submit" class="btn">Entregar todos os prontos ({{ ready_count.n }})</button>
+  </form>
+  {% endif %}
+
+  <div class="totals-box">
+    <p>Consumo total: R$ {{ '%.2f'|format(total_gross) }}</p>
+    <p>Já pago: R$ {{ '%.2f'|format(paid) }}</p>
+    <p>Em aberto: <strong>R$ {{ '%.2f'|format(remaining) }}</strong></p>
+  </div>
+
+  {% if payments %}
+  <h2>Pagamentos registrados</h2>
+  <ul class="bill-lines">
+    {% for p in payments %}
+      <li>
+        <span>{{ p.created_at.strftime('%H:%M') }} · {{ p.method }}{% if p.notes %} — {{ p.notes }}{% endif %}</span>
+        <span>R$ {{ '%.2f'|format(p.amount) }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if tent_session.status != 'fechada' %}
+  <h2>Fechar conta / liberar tenda</h2>
+  <form method="post" class="stack">
+    <input type="hidden" name="action" value="close">
+    <label>Forma de pagamento
+      <select name="method" required>
+        <option value="pix">PIX</option>
+        <option value="dinheiro">Dinheiro</option>
+        <option value="cartao">Cartão</option>
+      </select>
+    </label>
+    {% if remaining > 0.01 %}
+    <label>Valor em aberto
+      <input type="number" step="0.01" name="amount" value="{{ '%.2f'|format(remaining) }}">
+    </label>
+    {% else %}
+      <input type="hidden" name="amount" value="0">
+      <p class="notice">Nada em aberto — pode liberar a tenda.</p>
+    {% endif %}
+    <label>Obs.
+      <input type="text" name="notes">
+    </label>
+    <button type="submit" class="btn btn-primary">{% if remaining > 0.01 %}Pagar restante e fechar{% else %}Fechar e liberar tenda{% endif %}</button>
+  </form>
+  {% else %}
+    <p class="notice">Conta já fechada. Tenda liberada.</p>
+  {% endif %}
+</section>
+{% endblock %}

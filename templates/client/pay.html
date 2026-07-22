@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Pagar pedido #{{ order.id }}{% endblock %}
+{% block content %}
+<section class="panel narrow pay-panel">
+  <p class="eyebrow-dark">Pagamento online</p>
+  <h1>Pedido #{{ order.id }}</h1>
+  <p class="muted">Tenda {{ tent.number }} · Total <strong>R$ {{ '%.2f'|format(order.total) }}</strong></p>
+
+  {% if order.payment_status == 'pago' %}
+    <p class="notice">Já pago. Pode acompanhar o pedido.</p>
+    <a class="btn btn-primary" href="{{ url_for('public.orders', number=tent.number) }}">Ver pedidos</a>
+  {% else %}
+    <ul class="bill-lines">
+      {% for item in order.items %}
+        <li>
+          <span>{{ item.quantity }}x {{ item.product_name }}</span>
+          <span>R$ {{ '%.2f'|format(item.subtotal) }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="fake-pix" id="pix-box" {% if method != 'pix' %}hidden{% endif %}>
+      <div class="qr-fake" aria-hidden="true">
+        <span>PIX</span>
+        <small>QR DEMO</small>
+      </div>
+      <p class="hint">Simulação acadêmica — copie a chave e confirme abaixo.</p>
+      <code class="pix-key">mareclara@pix.demo</code>
+    </div>
+
+    <div class="fake-card" id="card-box" {% if method != 'cartao' %}hidden{% endif %}>
+      <p class="hint">Simulação de cartão (não cobra de verdade).</p>
+      <div class="card-fake">•••• •••• •••• 4242</div>
+    </div>
+
+    <form method="post" class="stack">
+      <label>Forma
+        <select name="method" id="pay-method">
+          <option value="pix" {% if method == 'pix' %}selected{% endif %}>PIX</option>
+          <option value="cartao" {% if method == 'cartao' %}selected{% endif %}>Cartão</option>
+        </select>
+      </label>
+      <button type="submit" class="btn btn-primary">Já paguei / Confirmar</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const sel = document.getElementById("pay-method");
+if (sel) {
+  sel.addEventListener("change", () => {
+    document.getElementById("pix-box").hidden = sel.value !== "pix";
+    document.getElementById("card-box").hidden = sel.value !== "cartao";
+  });
+}
+</script>
+{% endblock %}

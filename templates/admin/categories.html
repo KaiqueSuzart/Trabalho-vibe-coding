@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Categorias{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Categorias</h1>
+  <form method="post" class="stack">
+    <label>Nome <input name="name" required></label>
+    <label>Setor
+      <select name="sector">
+        <option value="bar">bar</option>
+        <option value="cozinha">cozinha</option>
+        <option value="servico">servico</option>
+      </select>
+    </label>
+    <label>Ordem <input type="number" name="sort_order" value="0"></label>
+    <button class="btn btn-primary" type="submit">Criar</button>
+  </form>
+  <ul>
+    {% for c in categories %}
+      <li>{{ c.sort_order }}. {{ c.name }} — {{ c.sector }}</li>
+    {% endfor %}
+  </ul>
+  <a class="btn" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+</section>
+{% endblock %}

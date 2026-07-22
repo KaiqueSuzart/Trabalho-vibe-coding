@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Pedir na tenda — Maré Clara{% endblock %}
+{% block content %}
+<section class="panel narrow order-gate">
+  <p class="eyebrow-dark">Na sua tenda</p>
+  <h1>Pedir agora</h1>
+  <p class="muted">Digite o número da tenda e o PIN do dia. Se você reservou (ou a tenda estiver livre), o sistema abre a sessão na hora.</p>
+
+  <form method="post" class="stack">
+    <label>Número da tenda
+      <input type="number" name="tent_number" min="1" placeholder="Ex.: 7" required autofocus>
+    </label>
+    <label>PIN do dia
+      <input type="password" name="pin" inputmode="numeric" placeholder="1234" required>
+    </label>
+    <button type="submit" class="btn btn-primary">Abrir cardápio</button>
+  </form>
+
+  <p class="hint">PIN demo: <strong>1234</strong></p>
+
+  {% if occupied %}
+  <div class="occupied-hint">
+    <p class="zone-label">Tendas ocupadas agora</p>
+    <div class="tent-row compact">
+      {% for tent in occupied %}
+        <a class="tent-spot status-ocupada" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+          <span class="tent-num">{{ tent.number }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <p class="alt-links">
+    <a href="{{ url_for('public.menu_browse') }}">Só ver o cardápio</a>
+    ·
+    <a href="{{ url_for('public.reserve') }}">Reservar tenda</a>
+  </p>
+</section>
+{% endblock %}

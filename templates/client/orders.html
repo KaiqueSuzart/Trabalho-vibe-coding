@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Pedidos — Tenda {{ tent.number }}{% endblock %}
+{% block content %}
+<section class="panel" data-poll-session="{{ open_session.id if open_session else '' }}">
+  <div class="row-between">
+    <h1>Seus pedidos</h1>
+    <a class="btn btn-sm" href="{{ url_for('public.menu', number=tent.number) }}">Cardápio</a>
+  </div>
+  {% if not orders %}
+    <p class="muted">Nenhum pedido ainda.</p>
+  {% else %}
+    {% for order in orders %}
+      <article class="order-card">
+        <header>
+          <strong>#{{ order.id }}</strong>
+          <span class="badge status-{{ order.status }}">{{ order.status }}</span>
+          <span class="muted">{{ order.created_at.strftime('%H:%M') }}</span>
+        </header>
+        <p class="pay-tag">
+          {% if order.payment_mode == 'online' %}
+            {% if order.payment_status == 'pago' %}Pago online ({{ order.payment_method }})
+            {% else %}
+              Aguardando pagamento —
+              <a href="{{ url_for('public.pay_order', number=tent.number, order_id=order.id) }}">pagar agora</a>
+            {% endif %}
+          {% elif order.payment_mode == 'na_entrega' %}
+            {% if order.payment_status == 'pago' %}Pago na entrega
+            {% else %}Pagar na entrega{% endif %}
+          {% else %}
+            Na conta da tenda
+          {% endif %}
+        </p>
+        <ul>
+          {% for item in order.items %}
+            <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status }}</em></li>
+          {% endfor %}
+        </ul>
+        <p class="price">R$ {{ '%.2f'|format(order.total) }}</p>
+      </article>
+    {% endfor %}
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  if (document.querySelector('[data-poll-session]')) {
+    const id = document.querySelector('[data-poll-session]').dataset.pollSession;
+    if (id) setInterval(() => location.reload(), 8000);
+  }
+</script>
+{% endblock %}

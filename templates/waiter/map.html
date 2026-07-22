@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Mapa — Garçom{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Mapa de tendas</h1>
+  <div class="tent-grid">
+    {% for tent in tents %}
+      <div class="tent-card status-{{ tent.status }}">
+        <span class="tent-num">{{ tent.number }}</span>
+        <span class="tent-meta">{{ tent.zone }}</span>
+        <span class="tent-status">{{ tent.status }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <a class="btn" href="{{ url_for('waiter.dashboard') }}">Voltar</a>
+</section>
+{% endblock %}

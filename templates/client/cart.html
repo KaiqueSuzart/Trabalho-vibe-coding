@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Carrinho — Tenda {{ tent.number }}{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Carrinho — Tenda {{ tent.number }}</h1>
+  {% if not lines %}
+    <p class="muted">Carrinho vazio.</p>
+    <a class="btn" href="{{ url_for('public.menu', number=tent.number) }}">Voltar ao cardápio</a>
+  {% else %}
+    <ul class="bill-lines cart-visual">
+      {% for line in lines %}
+        <li>
+          <div class="cart-line">
+            {% if line.product.image_url %}
+              <span class="cart-thumb" style="background-image:url('{{ line.product.image_url }}')"></span>
+            {% endif %}
+            <div>
+              <strong>{{ line.quantity }}x {{ line.product.name }}</strong>
+              {% if line.notes %}<span class="muted"> — {{ line.notes }}</span>{% endif %}
+            </div>
+          </div>
+          <span>R$ {{ '%.2f'|format(line.subtotal) }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="total">Total: R$ {{ '%.2f'|format(total) }}</p>
+
+    <form method="post" action="{{ url_for('public.place_order', number=tent.number) }}" class="stack checkout-form">
+      <label>Observação do pedido
+        <input type="text" name="order_notes" placeholder="Ex.: sem gelo">
+      </label>
+
+      <fieldset class="pay-options">
+        <legend>Como deseja pagar?</legend>
+
+        <label class="pay-option">
+          <input type="radio" name="payment_mode" value="online" checked>
+          <span>
+            <strong>Pagar agora (online)</strong>
+            <small>PIX ou cartão simulado — pedido já sai pago</small>
+          </span>
+        </label>
+        <div class="online-methods" id="online-methods">
+          <label class="chip"><input type="radio" name="online_method" value="pix" checked> PIX</label>
+          <label class="chip"><input type="radio" name="online_method" value="cartao"> Cartão</label>
+        </div>
+
+        <label class="pay-option">
+          <input type="radio" name="payment_mode" value="na_entrega">
+          <span>
+            <strong>Pagar na entrega</strong>
+            <small>Quando o garçom trouxer na tenda (dinheiro, PIX ou cartão)</small>
+          </span>
+        </label>
+
+        <label class="pay-option">
+          <input type="radio" name="payment_mode" value="na_conta">
+          <span>
+            <strong>Deixar na conta</strong>
+            <small>Acumula e você fecha tudo no final</small>
+          </span>
+        </label>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary">Confirmar pedido</button>
+    </form>
+    <form method="post" action="{{ url_for('public.cart_clear', number=tent.number) }}">
+      <button type="submit" class="btn btn-ghost">Limpar carrinho</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('input[name="payment_mode"]').forEach((el) => {
+  el.addEventListener("change", () => {
+    document.getElementById("online-methods").style.display =
+      document.querySelector('input[name="payment_mode"]:checked').value === "online"
+        ? "flex"
+        : "none";
+  });
+});
+</script>
+{% endblock %}

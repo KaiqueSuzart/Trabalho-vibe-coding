@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Pedido manual{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Lançar pedido (garçom)</h1>
+  {% if not open_sessions %}
+    <p class="muted">Nenhuma sessão aberta. Faça o check-in primeiro.</p>
+  {% else %}
+  <form method="post" class="stack">
+    <label>Sessão / Tenda
+      <select name="session_id" required>
+        {% for s in open_sessions %}
+          <option value="{{ s.id }}">Tenda {{ s.tent.number }} — {{ s.customer_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Produto
+      <select name="product_id" required>
+        {% for cat in categories %}
+          <optgroup label="{{ cat.name }}">
+            {% for p in cat.products if p.available %}
+              <option value="{{ p.id }}">{{ p.name }} — R$ {{ '%.2f'|format(p.price) }}</option>
+            {% endfor %}
+          </optgroup>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Quantidade
+      <input type="number" name="quantity" value="1" min="1">
+    </label>
+    <label>Observação
+      <input type="text" name="notes">
+    </label>
+    <button type="submit" class="btn btn-primary">Enviar</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Check-in{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Check-in de tenda</h1>
+  <form method="post" class="stack">
+    <label>Tenda
+      <select name="tent_id" required>
+        {% for tent in tents %}
+          <option value="{{ tent.id }}">Nº {{ tent.number }} — {{ tent.status }} ({{ tent.zone }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Reserva (opcional)
+      <select name="reservation_id">
+        <option value="">Sem reserva / walk-in</option>
+        {% for r in reservations %}
+          <option value="{{ r.id }}">Tenda {{ r.tent.number }} — {{ r.customer_name }} ({{ r.date }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Nome do cliente
+      <input type="text" name="customer_name" placeholder="Cliente">
+    </label>
+    <label>Telefone
+      <input type="tel" name="customer_phone">
+    </label>
+    <button type="submit" class="btn btn-primary">Abrir sessão</button>
+  </form>
+  <p class="hint">PIN do dia para o cliente: <strong>1234</strong></p>
+</section>
+{% endblock %}
