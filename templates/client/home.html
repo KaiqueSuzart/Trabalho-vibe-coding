@@ -89,14 +89,14 @@
 <section id="mapa" class="map-section">
   <div class="map-head">
     <h2>Mapa das tendas</h2>
-    <p>Toque no número da sua tenda para pedir. PIN: <strong>1234</strong></p>
+    <p>Toque no número da sua tenda para pedir. PIN: <strong>1234</strong>. Cores: verde livre · amarelo reservada · vermelho ocupada.</p>
   </div>
 
   <div class="zone-block">
     <p class="zone-label">Frente Mar</p>
     <div class="tent-row">
       {% for tent in tents if tent.zone == 'Frente Mar' %}
-        <a class="tent-spot status-{{ tent.status|label }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
           <span class="tent-num">{{ tent.number }}</span>
           <span class="tent-status">{{ tent.status|label }}</span>
         </a>
@@ -108,7 +108,7 @@
     <p class="zone-label">Meio</p>
     <div class="tent-row">
       {% for tent in tents if tent.zone == 'Meio' %}
-        <a class="tent-spot status-{{ tent.status|label }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
           <span class="tent-num">{{ tent.number }}</span>
           <span class="tent-status">{{ tent.status|label }}</span>
         </a>
@@ -120,7 +120,7 @@
     <p class="zone-label">Fundo</p>
     <div class="tent-row">
       {% for tent in tents if tent.zone == 'Fundo' %}
-        <a class="tent-spot status-{{ tent.status|label }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
+        <a class="tent-spot status-{{ tent.status }}" href="{{ url_for('public.tent_entry', number=tent.number) }}">
           <span class="tent-num">{{ tent.number }}</span>
           <span class="tent-status">{{ tent.status|label }}</span>
         </a>

@@ -47,7 +47,7 @@
               <span class="tent-pill">Tenda {{ order.session.tent.number }}</span>
               <span class="muted">{{ order.created_at.strftime('%H:%M') }}</span>
             </div>
-            <span class="badge status-{{ order.status|label }}">{{ api_st }}</span>
+            <span class="badge status-{{ order.status }}">{{ api_st }}</span>
           </header>
           <ul>
             {% for item in order.items %}

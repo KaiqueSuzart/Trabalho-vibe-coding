@@ -35,7 +35,7 @@
         <article class="mini-card">
           <span class="tent-pill">Tenda {{ order.session.tent.number }}</span>
           <strong>Pedido #{{ order.id }}</strong>
-          <p><span class="badge status-{{ order.status|label }}">{{ order.status|label }}</span></p>
+          <p><span class="badge status-{{ order.status }}">{{ order.status|label }}</span></p>
           <ul class="compact-list">
             {% for item in order.items if item.sector != 'servico' %}
               <li>{{ item.quantity }}x {{ item.product_name }} — <em>{{ item.status|label }}</em></li>
@@ -103,7 +103,7 @@
         <tr>
           <td>{{ s.tent.number }}</td>
           <td>{{ s.customer_name }}</td>
-          <td><span class="badge status-{{ s.status|label }}">{{ s.status|label }}</span></td>
+          <td><span class="badge status-{{ s.status }}">{{ s.status|label }}</span></td>
           <td><a href="{{ url_for('waiter.close_bill', session_id=s.id) }}">Conta</a></td>
         </tr>
         {% else %}

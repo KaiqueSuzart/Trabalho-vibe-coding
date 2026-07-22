@@ -693,13 +693,13 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font-weight: 700;
   color: var(--muted);
 }
-.tent-spot.status-livre { border-color: var(--ok); }
+.tent-spot.status-livre { border-color: var(--ok); background: #eef8f1; }
 .tent-spot.status-livre .tent-status { color: var(--ok); }
 .tent-spot.status-reservada { border-color: var(--warn); background: #fff8e6; }
 .tent-spot.status-reservada .tent-status { color: var(--warn); }
 .tent-spot.status-ocupada { border-color: var(--danger); background: #fff0ec; }
 .tent-spot.status-ocupada .tent-status { color: var(--danger); }
-.tent-spot.status-manutencao { border-color: #888; opacity: 0.55; }
+.tent-spot.status-manutencao { border-color: #888; background: #f0f0f0; opacity: 0.7; }
 
 .legend {
   display: flex;

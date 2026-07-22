@@ -5,7 +5,7 @@
   <div class="row-between">
     <div>
       <h1>Conta — Tenda {{ tent_session.tent.number }}</h1>
-      <p>{{ tent_session.customer_name }} · <span class="badge status-{{ tent_session.status|label }}">{{ tent_session.status|label }}</span></p>
+      <p>{{ tent_session.customer_name }} · <span class="badge status-{{ tent_session.status }}">{{ tent_session.status|label }}</span></p>
     </div>
     <a class="btn btn-sm" href="{{ url_for('waiter.dashboard') }}">Voltar</a>
   </div>
@@ -22,7 +22,7 @@
       <div>
         <strong>Pedido #{{ order.id }}</strong>
         <span class="muted">{{ order.created_at.strftime('%H:%M') if order.created_at else '' }}</span>
-        <span class="badge status-{{ order.status|label }}">{{ order.status|label }}</span>
+        <span class="badge status-{{ order.status }}">{{ order.status|label }}</span>
       </div>
       <div class="pay-badges">
         {% if order.payment_status == 'pago' %}
@@ -43,7 +43,7 @@
       <li>
         <div class="item-main">
           <span>{{ item.quantity }}x {{ item.product_name }}</span>
-          <span class="badge status-{{ item.status|label }}">{{ item.status|label }}</span>
+          <span class="badge status-{{ item.status }}">{{ item.status|label }}</span>
           {% if item.notes %}<span class="muted">{{ item.notes }}</span>{% endif %}
         </div>
         <div class="item-actions">

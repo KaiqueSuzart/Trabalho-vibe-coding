@@ -19,7 +19,7 @@
       <article class="order-card" data-order-id="{{ order.id }}">
         <header>
           <strong>#{{ order.id }}</strong>
-          <span class="badge status-{{ order.status|label }}" data-api-status>{{ order.status|label }}</span>
+          <span class="badge status-{{ order.status }}" data-api-status>{{ order.status|label }}</span>
           <span class="muted">{{ order.created_at.strftime('%H:%M') }}</span>
         </header>
         {% if estimates.get(order.id) %}

@@ -4,14 +4,14 @@
 <section class="panel">
   <h1>Conta da tenda {{ tent.number }}</h1>
   {% if open_session %}
-    <p class="badge status-{{ open_session.status|label }}">{{ open_session.status|label }}</p>
+    <p class="badge status-{{ open_session.status }}">{{ open_session.status|label }}</p>
 
     {% for order in open_session.orders if order.status != 'cancelado' %}
     <article class="order-card bill-order {% if order.payment_status == 'pago' %}is-paid{% endif %}">
       <header class="row-between">
         <div>
           <strong>Pedido #{{ order.id }}</strong>
-          <span class="badge status-{{ order.status|label }}">{{ order.status|label }}</span>
+          <span class="badge status-{{ order.status }}">{{ order.status|label }}</span>
         </div>
         <div class="pay-badges">
           {% if order.payment_status == 'pago' %}
@@ -33,7 +33,7 @@
         <li>
           <div class="item-main">
             <span>{{ item.quantity }}x {{ item.product_name }}</span>
-            <span class="badge status-{{ item.status|label }}">{{ item.status|label }}</span>
+            <span class="badge status-{{ item.status }}">{{ item.status|label }}</span>
           </div>
           <span>R$ {{ '%.2f'|format(item.subtotal) }}</span>
         </li>

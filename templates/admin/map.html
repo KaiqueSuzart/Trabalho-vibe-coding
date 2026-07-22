@@ -8,7 +8,7 @@
   </div>
   <div class="tent-grid">
     {% for tent in tents %}
-      <div class="tent-card status-{{ tent.status|label }}">
+      <div class="tent-card status-{{ tent.status }}">
         <span class="tent-num">{{ tent.number }}</span>
         <span class="tent-meta">{{ tent.zone }} · {{ tent.capacity }}p</span>
         <span class="tent-status">{{ tent.status|label }}</span>

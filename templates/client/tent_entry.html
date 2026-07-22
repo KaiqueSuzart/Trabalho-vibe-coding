@@ -4,7 +4,7 @@
 <section class="panel narrow">
   <h1>Tenda {{ tent.number }}</h1>
   <p class="muted">{{ tent.zone }} · {{ tent.capacity }} pessoas · R$ {{ '%.2f'|format(tent.daily_price) }}/dia</p>
-  <p class="badge status-{{ tent.status|label }}">{{ tent.status|label }}</p>
+  <p class="badge status-{{ tent.status }}">{{ tent.status|label }}</p>
 
   {% if open_session %}
     <p>Sessão aberta para <strong>{{ open_session.customer_name }}</strong>.</p>
