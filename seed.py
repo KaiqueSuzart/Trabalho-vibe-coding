@@ -7,27 +7,27 @@ from models import Category, Product, Reservation, Tent, User, db
 from models import Order, OrderItem
 from models import Session as TentSession
 
-# Fotos locais (não dependem de link externo quebrado)
+# Fotos locais (cache-bust ?v=2 após troca das imagens)
 IMG = {
-    "agua": "/static/img/products/agua.jpg",
-    "cerveja": "/static/img/products/cerveja.jpg",
-    "caipi": "/static/img/products/caipi.jpg",
-    "suco": "/static/img/products/suco.jpg",
-    "coco": "/static/img/products/coco.jpg",
-    "refri": "/static/img/products/refri.jpg",
-    "batata": "/static/img/products/batata.jpg",
-    "peixe": "/static/img/products/peixe.jpg",
-    "camarao": "/static/img/products/camarao.jpg",
-    "pastel": "/static/img/products/pastel.jpg",
-    "burger": "/static/img/products/burger.jpg",
-    "hotdog": "/static/img/products/hotdog.jpg",
-    "wrap": "/static/img/products/wrap.jpg",
-    "acai": "/static/img/products/acai.jpg",
-    "picole": "/static/img/products/picole.jpg",
-    "tenda": "/static/img/products/tenda.jpg",
-    "cadeira": "/static/img/products/cadeira.jpg",
-    "guarda": "/static/img/products/guarda.jpg",
-    "toalha": "/static/img/products/toalha.jpg",
+    "agua": "/static/img/products/agua.jpg?v=2",
+    "cerveja": "/static/img/products/cerveja.jpg?v=2",
+    "caipi": "/static/img/products/caipi.jpg?v=2",
+    "suco": "/static/img/products/suco.jpg?v=2",
+    "coco": "/static/img/products/coco.jpg?v=2",
+    "refri": "/static/img/products/refri.jpg?v=2",
+    "batata": "/static/img/products/batata.jpg?v=2",
+    "peixe": "/static/img/products/peixe.jpg?v=2",
+    "camarao": "/static/img/products/camarao.jpg?v=2",
+    "pastel": "/static/img/products/pastel.jpg?v=2",
+    "burger": "/static/img/products/burger.jpg?v=2",
+    "hotdog": "/static/img/products/hotdog.jpg?v=2",
+    "wrap": "/static/img/products/wrap.jpg?v=2",
+    "acai": "/static/img/products/acai.jpg?v=2",
+    "picole": "/static/img/products/picole.jpg?v=2",
+    "tenda": "/static/img/products/tenda.jpg?v=2",
+    "cadeira": "/static/img/products/cadeira.jpg?v=2",
+    "guarda": "/static/img/products/guarda.jpg?v=2",
+    "toalha": "/static/img/products/toalha.jpg?v=2",
 }
 
 
