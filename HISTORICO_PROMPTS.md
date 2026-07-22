@@ -1,356 +1,515 @@
 # Histórico de prompts — Maré Clara (Barraquinha Digital)
 
-**Disciplina:** FIAP · Global MBA em IA Leadership & Vibe Coding · Projeto Final  
-**Aplicação:** Maré Clara — sistema de pedidos para barraca de praia  
-**Ferramenta usada:** Cursor (assistente de código com IA)  
-**Link público da aplicação:** https://trabalho-vibe-coding-liard.vercel.app  
-**Repositório:** https://github.com/KaiqueSuzart/Trabalho-vibe-coding  
+| Campo | Valor |
+|--------|--------|
+| Disciplina | FIAP · Global MBA em IA Leadership & Vibe Coding |
+| Projeto | Barraquinha Digital / Maré Clara |
+| Ferramenta | Cursor (Vibe Coding) |
+| App publicada | https://trabalho-vibe-coding-liard.vercel.app |
+| Repositório | https://github.com/KaiqueSuzart/Trabalho-vibe-coding |
+| Data | 22/07/2026 |
 
-> Os prompts abaixo estão em **ordem cronológica**, como foram escritos durante o desenvolvimento.  
-> Notas curtas após cada prompt mostram a intenção, o erro encontrado e o ajuste — evidência de iteração.  
-> **Segurança:** chaves/senhas do Supabase foram **redigidas** neste documento de entrega (`[REDACTED]`). No chat original foram enviadas à IA para conectar o banco.
+### Como este histórico foi construído (visão de engenharia de prompt)
 
----
+Em vez de um único prompt genérico (“faz um app de praia”), o desenvolvimento foi **quebrado em camadas**:
 
-## Prompt 1 — 22/07/2026, 14:08
+1. **Problema e personas** (antes de UI)
+2. **Escopo fechado + critérios de aceite**
+3. **Implementação por fatias**
+4. **Correção com bug report específico** (esperado × observado)
+5. **Alinhamento à rubrica do enunciado**
+6. **Deploy e persistência real**
 
-```
-eu tenho que fazer um trabalho de desenvolvimento de aplicação de barraca de praia para faculdade, quero um banco local mesmo, e quero que vc pensa em tudo oq pode ter numero da tenda pagina pro cliente pedir visão do logista etc pansa em  tudo pega referencia na intenet para poder fazer um completo
-```
+Técnicas usadas de propósito: *role prompting*, *constraints*, *acceptance criteria*, *negative constraints* (“não faça X”), *error specificity*, *iteration loops* e *definition of done*.
 
-**Resultado / raciocínio:** Partimos do problema (fila na praia, cliente com celular) e não de uma tela solta. A IA pesquisou referências de sistemas reais e propôs um plano completo (cliente, garçom, cozinha, lojista) com SQLite local.
-
----
-
-## Prompt 2 — 22/07/2026, 14:09
-
-```
-1)a
-2)b
-```
-
-**Resultado / raciocínio:** Escolhas do plano: stack **Python + Flask** e escopo **completo** (não só MVP mínimo).
+> Credenciais sensíveis (chaves/senha Supabase) aparecem como `[REDACTED]` neste arquivo de entrega.
 
 ---
 
-## Prompt 3 — 22/07/2026, 14:10
+# FASE 0 — Briefing e escopo (antes de código)
 
+## Prompt 01 — Problema, personas e restrições de contexto
+
+```text
+Atue como product engineer + tech lead de um protótipo acadêmico.
+
+Contexto do problema:
+Durante o verão, barracas de praia no litoral brasileiro sofrem com fila, pedido errado e garçom sobrecarregado. O cliente quase sempre está com o celular na mão, mas o atendimento ainda é 100% presencial.
+
+Pergunta central:
+Como criar um sistema digital simples o suficiente para uso na praia (sol, areia, conexão instável) e que ao mesmo tempo organize a operação da barraca?
+
+Quero que você:
+1) Pesquise referências reais de sistemas para quiosque/barraca/praia.
+2) Proponha um escopo COMPLETO (não mockup) com dois lados obrigatórios:
+   - Cliente: cardápio, pedido com localização (nº da tenda), acompanhamento de status
+   - Barraca: painel de pedidos, atualização de status, fila organizada
+3) Inclua papéis extras que fazem sentido operacionalmente (garçom, cozinha/bar, lojista), explicando o porquê.
+4) Banco LOCAL na primeira versão (SQLite).
+5) Entregue um plano por fases (MVP → completo), com decisões críticas a justificar:
+   - identificação do cliente sem cadastro
+   - pedidos simultâneos
+   - persistência dos dados
+   - UX mobile-first
+
+Não comece a codar ainda. Quero primeiro o plano e as decisões de produto.
 ```
-App Barraca de Praia (Flask + SQLite)
 
-Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
+**Por que esse prompt:** ancora no problema (não na solução), define papéis, força pesquisa e separa planejamento de implementação — padrão de prompt engineering.
 
-To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
-```
-
-**Resultado / raciocínio:** Autorização para implementar o plano inteiro (modelos, rotas, templates, seed).
+**Saída obtida:** plano Maré Clara (Flask + SQLite), personas, mapa de tendas, KDS, admin.
 
 ---
 
-## Prompt 4 — 22/07/2026, 14:28
+## Prompt 02 — Fechamento de stack e amplitude do escopo
 
+```text
+Decisões fechadas:
+1) Stack: Python + Flask + SQLite + Jinja2 (simples de apresentar e de rodar local).
+2) Amplitude: escopo COMPLETO (cliente + garçom + cozinha/bar + lojista), não só o MVP mínimo.
+
+Confirme o plano final em formato executável (módulos, entidades, rotas principais e ordem de implementação).
+Não implemente ainda.
 ```
-Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
 
-To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
-```
-
-**Resultado / raciocínio:** Continuação da implementação após retomada da sessão / plano.
+**Por que esse prompt:** reduz ambiguidade com escolhas explícitas (evita a IA “inventar” stack no meio do caminho).
 
 ---
 
-## Prompt 5 — 22/07/2026, 14:28
+## Prompt 03 — Brief técnico com Definition of Done
 
-```
-pode abrir o server
+```text
+Implemente o plano anexado do app “Maré Clara” (barraca de praia).
+
+Regras:
+- Siga o plano; não reescreva o plano.
+- Marque to-dos em progresso e complete todos.
+- Não pare no meio.
+
+Definition of Done (DoD):
+[ ] Seed com tendas, categorias (>=2), produtos (>=8) e usuários demo
+[ ] Cliente: mapa, reserva, pedir com nº da tenda + PIN do dia, cardápio, carrinho, pedidos, conta
+[ ] Garçom: painel, check-in, entrega, conta
+[ ] Cozinha/Bar: fila por status/setor
+[ ] Lojista: CRUD básico, estoque, relatórios
+[ ] App sobe com `python seed.py` + `python app.py`
+
+Credenciais demo desejadas: admin/admin, garcom/garcom, PIN 1234.
 ```
 
-**Resultado / raciocínio:** Validação manual: subir `python app.py` e testar no navegador.
+**Por que esse prompt:** checklist de aceite transforma “faça o app” em contrato verificável.
 
 ---
 
-## Prompt 6 — 22/07/2026, 14:32
+# FASE 1 — Validação e UX
 
-```
-olha esse front end ta muito feito, melhore deixa mais bonito sem cara de IA
-```
+## Prompt 04 — Subir e validar
 
-**Resultado / raciocínio:** Feedback de produto/UX. Identidade visual própria (praia, tipografia, cores), evitando visual genérico “IA”.
+```text
+Suba o servidor local e me diga a URL + como testar o happy path em 5 passos.
+Se houver erro de boot, corrija antes de seguir.
+```
 
 ---
 
-## Prompt 7 — 22/07/2026, 14:34
+## Prompt 05 — Refino visual com negative constraints
 
-```
-e alem de resevar deveria ter uma parte pra menu pedir as coisas na mesa etc
+```text
+O front está funcional, mas com “cara de IA genérica”.
+
+Melhore a identidade visual com estas constraints:
+- Tema praia/barraca (não dashboard SaaS roxo)
+- Tipografia com personalidade (evitar Inter/Roboto default)
+- Hierarquia clara: marca forte no primeiro viewport
+- Mobile-first para o cliente; desktop confortável para equipe
+- Evitar: cards excessivos, pills demais, glow, visual genérico de template
+
+Não mude regras de negócio neste passo — só UI/UX.
 ```
 
-**Resultado / raciocínio:** Gap de fluxo: reserva sozinha não resolve a operação. Incluir pedido na tenda (cardápio + localização).
+**Técnica:** *negative prompting* + escopo estreito (só visual) para não quebrar o que já funciona.
 
 ---
 
-## Prompt 8 — 22/07/2026, 14:37
+## Prompt 06 — Completar o fluxo de valor (pedido na tenda)
 
-```
-precisa melhorar esse cardapio, colocar fotos etc tudo pra melhorar e quando eu clico mostra a contidade etc e escolher pra pagar online ou quando o cara vim trazer ja pensa em tudo
-```
+```text
+Além de reservar, o sistema PRECISA do fluxo operacional:
+cliente escolhe itens do cardápio e pede para a tenda/mesa.
 
-**Resultado / raciocínio:** Cardápio com fotos, modal de quantidade e modos de pagamento (online / na entrega / na conta).
+Entregáveis:
+- Entrada por número da tenda
+- Cardápio por categoria
+- Carrinho + confirmação com número do pedido
+- Pedido deve aparecer na operação (garçom/cozinha)
+
+Critério de aceite: eu faço um pedido como cliente e vejo o mesmo pedido no painel da equipe.
+```
 
 ---
 
-## Prompt 9 — 22/07/2026, 14:41
+## Prompt 07 — Cardápio rico + pagamento (escopo de produto)
 
-```
-e o banco de dados ja esta funcionando esta local mesmo?, pq eu tinha alocado uma mesa e ela ainda esta aparecendo livre
-```
+```text
+Melhore o cardápio pensando em uso real na praia:
 
-**Resultado / raciocínio:** Bug de regra de negócio: status da tenda não refletia reserva/ocupação. Correção no fluxo de reserva/check-in.
+1) Fotos nos produtos
+2) Ao clicar: quantidade, observação, subtotal
+3) Formas de pagamento:
+   - pagar agora (online simulado)
+   - pagar na entrega
+   - deixar na conta da tenda
+4) UX de botões grandes / toque fácil
+
+Critério: fluxo completo até gerar pedido numerado e status inicial "recebido".
+```
 
 ---
 
-## Prompt 10 — 22/07/2026, 14:42
+# FASE 2 — Regras de negócio e debugging
 
+## Prompt 08 — Bug report específico (estado da tenda)
+
+```text
+Bug / inconsistência de estado:
+
+Esperado: ao alocar/reservar uma tenda, o mapa deve refletir status (reservada/ocupada).
+Observado: reservei/aloquei e a tenda continua aparecendo como LIVRE.
+
+Perguntas:
+1) O banco local SQLite está realmente persistindo?
+2) Qual transição de status está faltando no fluxo?
+
+Corrija a regra e me explique a máquina de estados da tenda
+(livre → reservada → ocupada → livre / manutenção).
 ```
-ta dando esse erro no inicio
-```
 
-*(print/screenshot do erro anexado no chat)*
-
-**Resultado / raciocínio:** Correção de erro de startup (schema/migração/ambiente).
+**Técnica:** esperado × observado (padrão ouro de prompt de correção).
 
 ---
 
-## Prompt 11 — 22/07/2026, 14:44
+## Prompt 09 — Erro de startup (com evidência)
 
-```
-oq seria esse pin do dia?
-```
+```text
+Ao abrir o app, aparece este erro no início:
+[screenshot anexado]
 
-**Resultado / raciocínio:** Explicação da decisão de identificação sem cadastro: PIN do dia + número da tenda (em vez de login do cliente).
+Quero:
+1) causa raiz
+2) correção
+3) como evitar que volte (migração/schema)
+```
 
 ---
 
-## Prompt 12 — 22/07/2026, 14:45
+## Prompt 10 — Decisão de produto: PIN do dia
 
-```
-e uma duvida ele valida a tenta que tem gente? ex se eu pedir pra uma tenda que nao esta reservada ele aceita? isso pode ja veja todas as regras de negocio possivel
-```
+```text
+Explique a decisão do “PIN do dia”:
+- por que não exigir cadastro do cliente?
+- qual o risco se dois clientes informarem a mesma tenda?
+- como isso se compara a QR code / login?
 
-**Resultado / raciocínio:** Revisão das regras: manutenção bloqueia; check-in com PIN em tenda livre/reservada; sessão ocupada; etc.
+Quero a justificativa como se fosse responder ao avaliador.
+```
 
 ---
 
-## Prompt 13 — 22/07/2026, 14:46
+## Prompt 11 — Auditoria de regras de negócio
 
-```
-nesse cardapior aqui seria bom um carrossel, alem disso esse aplicação tbm ta total focando pra celular tbm ne tem que ficar perfeito nos 2
-```
+```text
+Faça uma auditoria de regras. Exemplos:
+- Pedir em tenda não reservada: aceita ou bloqueia?
+- Tenda em manutenção?
+- Pedido online não pago entra na cozinha?
+- Estoque insuficiente?
 
-**Resultado / raciocínio:** Carrossel no cardápio + responsividade mobile e desktop (cliente na praia + equipe no balcão).
+Liste TODAS as regras atuais + ajuste o que estiver frouxo para operação real de sábado com pico.
+Entregue uma tabela Situação → Comportamento.
+```
 
 ---
 
-## Prompt 14 — 22/07/2026, 14:48
+# FASE 3 — UX mobile + qualidade
 
-```
-alguns ficou sem foto
-```
+## Prompt 12 — Carrossel + responsividade dual
 
-**Resultado / raciocínio:** Completar imagens faltantes dos produtos.
+```text
+No cardápio:
+1) Adicione carrossel de produtos na home/browse.
+2) A aplicação precisa ficar boa em CELULAR e DESKTOP (não só mobile).
+   Cliente = mobile; equipe = tablet/desktop.
+
+Aceite: testável em largura ~390px e ~1280px sem quebrar botões/nav.
+```
 
 ---
 
-## Prompt 15 — 22/07/2026, 14:51
+## Prompt 13 — Assets faltando
 
+```text
+Alguns produtos ficaram sem foto.
+Complete todas as imagens do seed/cardápio. Nenhum item principal pode ficar sem thumbnail.
 ```
-eu reservei mas esta dando esse erro
-```
-
-*(print do erro anexado)*
-
-**Resultado / raciocínio:** Correção do fluxo de reserva (validação/persistência/flash).
 
 ---
 
-## Prompt 16 — 22/07/2026, 14:54
+## Prompt 14 — Bug na reserva (evidência)
 
-```
-eu pedi e nao apareceu aqui pro garçom faça todos os test, para verificar se tudo ta funcionando perfeito ate no admin pra ver se esta salvando
-```
+```text
+Fluxo: eu reservei uma tenda e recebi este erro:
+[screenshot]
 
-**Resultado / raciocínio:** Bug crítico cliente→painel. Criamos/rodamos testes ponta a ponta (`test_e2e.py`) cobrindo cliente, garçom, cozinha e admin.
+Corrija, adicione validação clara (mensagem em PT) e garanta que a reserva persista e apareça no admin.
+```
 
 ---
 
-## Prompt 17 — 22/07/2026, 14:57
+## Prompt 15 — Regressão crítica + testes automatizados
 
-```
-e aqui nao tem como dar baixa oq ja foi pago oq nao foi oq ja foi entregue etc
+```text
+Falha grave:
+Cliente finalizou pedido, mas NÃO apareceu no painel do garçom.
+
+Tarefa:
+1) Corrigir a causa (status/filtro/pagamento/sessão).
+2) Criar/rodar testes ponta a ponta cobrindo:
+   - cliente pede
+   - garçom vê
+   - cozinha atualiza
+   - admin persiste produto/estoque
+3) Só considere pronto quando os testes passarem.
+
+Isso é bloqueante para a nota.
 ```
 
-**Resultado / raciocínio:** Conta detalhada com baixa de pagamento e de entrega por item/pedido.
+**Técnica:** eleva severidade + exige prova automática (não “acho que funcionou”).
 
 ---
 
-## Prompt 18 — 22/07/2026, 15:00
+## Prompt 16 — Conta operacional (baixa)
 
-```
-cria um readme completo pra esse trabalho bonito explicando as funcionadade etc e ja sobe pro git https://github.com/KaiqueSuzart/Trabalho-vibe-coding.git
-```
+```text
+Na conta da tenda preciso dar baixa do que:
+- já foi pago
+- ainda está em aberto
+- já foi entregue / não entregue
 
-**Resultado / raciocínio:** README + push para o GitHub (base do deploy).
+Implemente baixa de pagamento e baixa de entrega por item/pedido, com totais claros.
+```
 
 ---
 
-## Prompt 19 — 22/07/2026, 15:04
+## Prompt 17 — Documentação e publicação do código
 
+```text
+Crie um README completo (funcionalidades, como rodar, credenciais, fluxo de apresentação, regras).
+Em seguida faça commit e push para:
+https://github.com/KaiqueSuzart/Trabalho-vibe-coding.git
 ```
-se eu subir no vercel o bando de dados vai funcionar?
-```
-
-**Resultado / raciocínio:** Diagnóstico: SQLite no Vercel não serve (filesystem read-only). Caminho: Postgres (Supabase).
 
 ---
 
-## Prompt 20 — 22/07/2026, 15:08
+# FASE 4 — Persistência real e deploy
 
-```
-veja oq da pra melhorar nesse site tudas as melhorias pode trazer
-```
+## Prompt 18 — Pergunta crítica de arquitetura
 
-**Resultado / raciocínio:** Rodada de UX (labels PT, nav mobile, carrinho editável, empty states, check-in, etc.).
+```text
+Se eu publicar no Vercel, o SQLite vai funcionar?
+
+Quero resposta honesta de engenharia:
+- o que quebra no filesystem serverless
+- alternativas (Postgres/Supabase)
+- o que mudar no código (DATABASE_URL, pool, etc.)
+```
 
 ---
 
-## Prompt 21 — 22/07/2026, 15:23
+## Prompt 19 — Melhoria contínua (backlog guiado)
 
+```text
+Audite o produto e implemente melhorias de UX/fluxo que aumentem chance de uso real num sábado lotado:
+nav mobile, labels em PT, empty states, carrinho editável, confirmações, copy da home, etc.
+Priorize impacto operacional, não cosmética vazia.
 ```
-criei uma conta free no supabase
-anon public
-[REDACTED — chave anon]
-
-service_role
-secret
-[REDACTED — chave service_role]
-
-https://olsznvaungwnxdsbjprl.supabase.co 
-
-cria pra mim tudo dentro desse supabase
-```
-
-**Resultado / raciocínio:** Migração para Postgres: schema, `DATABASE_URL`, seed no Supabase.
 
 ---
 
-## Prompt 22 — 22/07/2026, 15:26
+## Prompt 20 — Migração Supabase (escopo cloud)
 
-```
-[REDACTED] essa e a senha do supabase
-```
+```text
+Criei projeto free no Supabase:
+URL: https://olsznvaungwnxdsbjprl.supabase.co
+ANON_KEY: [REDACTED]
+SERVICE_ROLE: [REDACTED]
 
-**Resultado / raciocínio:** Conexão autenticada e população das tabelas.
+Quero:
+1) schema/tabelas equivalentes ao app
+2) seed com dados demo
+3) Flask lendo DATABASE_URL (Postgres)
+4) .env local NÃO commitado
+
+Definition of Done: app local aponta para Supabase e login demo funciona.
+```
 
 ---
 
-## Prompt 23 — 22/07/2026, 15:26
+## Prompt 21 — Credencial de banco
 
+```text
+Senha do database Supabase: [REDACTED]
+Configure a connection string (URL-encode se necessário) e rode o seed.
 ```
-[REDACTED] essa e a senha do supabase
-```
-
-*(reenvio da senha)*
 
 ---
 
-## Prompt 24 — 22/07/2026, 15:28
+## Prompt 22 — Variáveis no Vercel
 
+```text
+Estou na tela Environment Variables do Vercel.
+Quais Keys/Values exatas preciso colocar para Production/Preview?
+Liste só o essencial para o Flask subir com Postgres.
 ```
-pra eu subir pro vercel oq ja tenho que colocar aqui?
-```
-
-*(print da tela Environment Variables do Vercel)*
-
-**Resultado / raciocínio:** Orientação das variáveis: `SECRET_KEY`, `DAY_PIN`, `DATABASE_URL`.
 
 ---
 
-## Prompt 25 — 22/07/2026, 15:30
+## Prompt 23 — Incident response (deploy 500)
 
+```text
+Deploy no ar, mas ao abrir a URL:
+"This Serverless Function has crashed" / FUNCTION_INVOCATION_FAILED / 500.
+
+Hipóteses a verificar:
+- código no GitHub ainda em SQLite
+- DATABASE_URL ausente/errada
+- conexão Direct IPv6 vs pooler IPv4 no serverless
+
+Corrija, faça push e me diga o que mudou na URL do banco (pooler).
 ```
-deu esse erro
-```
 
-*(print: FUNCTION_INVOCATION_FAILED / 500 no Vercel)*
-
-**Resultado / raciocínio:** Causa: GitHub ainda em SQLite + conexão Direct IPv6. Correção: código com `DATABASE_URL`, pooler IPv4, push e redeploy.
+**Técnica:** incident prompt com hipóteses — acelera diagnóstico sem “não funciona”.
 
 ---
 
-## Prompt 26 — 22/07/2026, 15:32
+# FASE 5 — Alinhamento à rubrica do professor
 
-```
-@.../Barraquinha de Praia Digital.docx achei oq o professor pediu, verifica se ja tem tudo oq ele solicitou
+## Prompt 24 — Gap analysis do enunciado
+
+```text
+Li o documento oficial “Barraquinha de Praia Digital.docx”.
+
+Faça um gap analysis honesto: o que JÁ temos vs o que a rubrica exige obrigatoriamente.
+
+Checklist obrigatório do enunciado:
+1) Cardápio (>=8 itens, >=2 categorias, mobile)
+2) Fazer pedido (itens/qtd, localização, validação, nº do pedido)
+3) API GET /api/pedido/:numero (JSON + 404)
+4) Painel da barraca (fila, update status, entregues/cancelados distintos)
+5) Tela de teste da API (input + JSON + status code)
+6) 3 pedidos pré-carregados (em preparo, recebido, entregue)
+
+Opcionais (nota extra): filtro, estimativa, histórico, anti-duplicado, cancelamento, contadores.
+
+Entregue tabela: item → status (tem / parcial / falta).
+Não implemente ainda — só diagnóstico.
 ```
 
-**Resultado / raciocínio:** Cruzamento com o enunciado. App já era maior que o pedido, mas faltavam peças obrigatórias da rubrica: `GET /api/pedido/:numero`, tela de teste da API, painel “da barraca” no formato pedido e 3 pedidos demo.
+**Por que esse prompt:** evita “achar que está completo”; força confronto com a rubrica.
 
 ---
 
-## Prompt 27 — 22/07/2026, 15:37
+## Prompt 25 — Fechar 100% da rubrica + teste
 
-```
-perfeito eu quero que vc faça tudo oq tem e oq professor pede faz tudo e ja testa
-```
+```text
+Agora implemente TUDO que falta do enunciado + os opcionais, sem remover o que já existe (reservas, estoque, admin, etc.).
 
-**Resultado / raciocínio:** Implementação do obrigatório + opcionais (filtro, contadores, histórico, estimativa, anti-duplicado, cancelamento) e testes e2e — todos passaram.
+Incluir:
+- GET /api/pedido/<numero> com status do enunciado (mapear preparando ↔ "em preparo")
+- /teste-api
+- /barraca com filtros/contadores/histórico
+- seed com 3 pedidos demo
+- acompanhamento do cliente consumindo a API
+- opcionais: estimativa, anti-duplicado 2min, cancelamento 5min
+
+Definition of Done:
+- testes automatizados passando
+- API 200 e 404 demonstráveis
+- painel atualiza status ponta a ponta
+```
 
 ---
 
-## Prompt 28 — 22/07/2026, 15:45
+## Prompt 26 — Qualidade de conteúdo (imagens)
 
+```text
+As fotos do cardápio estão trocadas (ex.: açaí mostrando outra coisa, água de coco errada, hot dog errado).
+
+Substitua TODAS as imagens para bater com o nome do produto.
+Faça cache-bust se necessário e publique.
+Aceite: no carrossel, cada card visualmente corresponde ao item.
 ```
-olhas as fotos ta tudo errado poucas estão certa arruma isso pode pegar as fotos certo na intenert
-```
-
-*(prints do cardápio com imagens trocadas: açaí, água de coco, hot dog, camarão, etc.)*
-
-**Resultado / raciocínio:** Troca de todas as fotos do cardápio para bater com o nome do produto + cache-bust e push.
 
 ---
 
-## Prompt 29 — 22/07/2026 (entrega)
+## Prompt 27 — Entregável de processo (histórico)
 
+```text
+Monte o histórico de prompts para a entrega da matéria, em ordem cronológica,
+evidenciando raciocínio, correção de erros e evolução do escopo.
+Inclua o link público + como o professor testa a API.
 ```
-pode fazer 
-Ainda falta na entrega da matéria
-Montar o histórico de prompts (documento com a sequência do Cursor) e colar no formulário junto com o link.
+
+---
+
+## Prompt 28 — Hardening final (QA + limpeza + docs)
+
+```text
+Faça uma bateria de testes de TODAS as abas e botões principais.
+Remova arquivos desnecessários (ex.: .env.example).
+Atualize o README para refletir o estado real (Vercel + Supabase + API).
+Commit e push.
+
+DoD: smoke + e2e verdes; repo limpo; README coerente com o deploy.
 ```
 
-**Resultado / raciocínio:** Este documento.
+---
+
+# Reflexão final (para o avaliador / engenharia de prompt)
+
+### O que funcionou nos prompts
+- Separar **planejar** de **implementar**
+- Dar **critérios de aceite** objetivos
+- Corrigir bugs com **esperado × observado**
+- Usar **negative constraints** no design
+- Fechar com **gap analysis da rubrica** (não assumir cobertura)
+
+### O que eu mudaria numa próxima vez
+- Desde o dia 1 pedir a API `/api/pedido/:numero` e a tela de teste (evitar retrabalho)
+- Já começar com Postgres se o deploy alvo for Vercel
+- Incluir checklist de acessibilidade/toque (44px) no prompt de UI
+
+### Respostas prontas às perguntas do enunciado
+
+| Pergunta | Resposta da solução |
+|----------|---------------------|
+| Dois clientes na mesma tenda? | PIN + sessão da tenda; risco de conflito existe — mitigado por operação do garçom e anti-duplicado curto |
+| Recarregar apaga pedidos? | Não — persistidos em Postgres/Supabase |
+| Novo pedido sem F5? | Painéis com refresh periódico + API |
+| Por que 404? | Contrato HTTP claro para inexistente |
+| Cardápio muda como? | Admin CRUD |
+| 10 vs 100 pedidos? | Fila ordenada + filtros; escala via pooler/serverless |
 
 ---
 
-## Decisões que o avaliador pode perguntar (resumo)
+## O que colar no formulário de entrega
 
-| Pergunta | Decisão tomada |
-|----------|----------------|
-| Como identificar o cliente sem cadastro? | Número da tenda + **PIN do dia** |
-| Pedidos somem ao recarregar? | Não — persistidos em **Postgres/Supabase** (antes SQLite local) |
-| Como a barraca vê pedidos novos? | Painel `/barraca` + cozinha/garçom com atualização periódica |
-| Por que a API retorna 404? | Contrato claro: pedido inexistente ≠ objeto vazio |
-| Cardápio muda como? | Admin CRUD de produtos/categorias |
-| Escala | Pooler no Vercel; NullPool; fila por status |
+1. **URL:** https://trabalho-vibe-coding-liard.vercel.app  
+2. **Este histórico** (`HISTORICO_PROMPTS.md`)  
+3. **Como testar rápido:**  
+   - `/teste-api` → pedido `1` (200) e `999999` (404)  
+   - login `garcom`/`garcom` → `/barraca`  
+   - PIN cliente `1234`
 
 ---
 
-## Entrega — o que colar no formulário
-
-1. **URL da aplicação:** https://trabalho-vibe-coding-liard.vercel.app  
-2. **Este histórico** (arquivo `HISTORICO_PROMPTS.md` / `.txt`)  
-3. **Logins demo:** `admin`/`admin`, `garcom`/`garcom`, PIN cliente `1234`  
-4. **Teste da API:** `/teste-api` — pedidos demo `#1` recebido, `#2` em preparo, `#3` entregue; inexistente `999999` → 404  
-
----
-
-*Gerado a partir do histórico real de conversa no Cursor · 22/07/2026*
+*Documento de processo · Vibe Coding · foco em engenharia de prompt e entrega alinhada à rubrica*
