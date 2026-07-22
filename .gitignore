@@ -10,3 +10,4 @@ barraca.db
 *.log
 .env
 .env.local
+.env.example

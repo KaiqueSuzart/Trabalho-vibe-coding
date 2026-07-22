@@ -1,24 +1,24 @@
 # Maré Clara
 
-Sistema web acadêmico para **barraca de praia**: reserva de tendas, cardápio com fotos, pedidos pelo celular, painéis de garçom/cozinha e gestão do lojista — tudo com **banco local SQLite**.
+Sistema de pedidos digitais para **barraca de praia** (trabalho acadêmico · vibe coding).
 
-> Trabalho de desenvolvimento de aplicação · vibe coding  
-> Repositório: [KaiqueSuzart/Trabalho-vibe-coding](https://github.com/KaiqueSuzart/Trabalho-vibe-coding)
+**Link:** https://trabalho-vibe-coding-liard.vercel.app  
+**Repo:** https://github.com/KaiqueSuzart/Trabalho-vibe-coding
 
 ---
 
-## Visão geral
+## O que faz
 
-Na areia, o cliente não precisa ficar acenando para o garçom. Ele informa o **número da tenda**, usa o **PIN do dia**, monta o pedido no celular e acompanha o status. A cozinha/bar prepara, o garçom entrega na tenda e o lojista acompanha vendas, estoque e ocupação.
+Cliente pede pelo celular (tenda + PIN), barraca/cozinha/garçom gerenciam a fila e o lojista cuida de cardápio, estoque e relatórios.
 
 ```text
-Cliente (celular)  →  Pedido + pagamento
-        ↓
-Cozinha / Bar      →  Prepara itens
-        ↓
-Garçom             →  Entrega + baixa na conta
-        ↓
-Lojista            →  Cardápio, estoque, relatórios
+Cliente → Pedido + pagamento
+   ↓
+Barraca / Cozinha → Prepara
+   ↓
+Garçom → Entrega + conta
+   ↓
+Lojista → Gestão
 ```
 
 ---
@@ -26,173 +26,124 @@ Lojista            →  Cardápio, estoque, relatórios
 ## Funcionalidades
 
 ### Cliente
-- Mapa visual das tendas por zona (**Frente Mar**, **Meio**, **Fundo**)
-- **Reservar** tenda (data, período, nome, telefone)
-- **Pedir agora** com número da tenda + PIN do dia
-- Cardápio com **fotos**, categorias e carrossel na home
-- Clique no item → quantidade, observação e subtotal
-- Carrinho com 3 formas de pagamento:
-  - **Pagar agora (online)** — PIX/cartão simulado
-  - **Pagar na entrega** — garçom cobra ao trazer
-  - **Deixar na conta** — fecha tudo no final
-- Acompanhar pedidos e status da conta (pago / em aberto / entregue)
-- **Acompanhar** pedido via API (`/acompanhar`) e **Teste API** (`/teste-api`)
-- Estimativa de espera, cancelamento em até 5 min e bloqueio de pedido duplicado (&lt; 2 min)
+- Mapa de tendas, reserva, cardápio com fotos
+- Pedir com nº da tenda + PIN do dia
+- Carrinho (pagar online / na entrega / na conta)
+- Acompanhar pedidos (`/acompanhar`) e conta da tenda
+- Estimativa de espera, cancelar em até 5 min, anti-duplicado (&lt; 2 min)
 
-### Painel da Barraca (`/barraca`)
-- Pedidos ativos do mais antigo ao mais recente
-- Contadores e filtro por status
-- Atualização de status (recebido → em preparo → pronto → entregue / cancelado)
-- Histórico de entregues/cancelados visualmente distinto
+### Enunciado da matéria
+- API `GET /api/pedido/<numero>` (200 ou 404)
+- Tela de teste da API: `/teste-api`
+- Painel da barraca: `/barraca` (filtros, contadores, histórico)
+- 3 pedidos demo no seed (recebido / em preparo / entregue)
 
-### Garçom
-- Check-in manual de tendas
-- Pedidos em andamento + prontos para entregar
-- Pedido manual (cliente sem celular)
-- Entrega com cobrança na entrega
-- Conta da tenda com **baixa de pagamento** e **baixa de entrega** por item/pedido
-- Fechar conta e liberar a tenda no mapa
-
-### Cozinha / Bar (KDS)
-- Fila separada por setor (bar × cozinha)
-- Status: recebido → preparando → pronto
-- Pedidos online só entram na fila **depois** do pagamento confirmado
-
-### Lojista (admin)
-- Dashboard do dia (faturamento, ticket médio, ocupação, top produtos)
-- CRUD de produtos, categorias e tendas
-- Controle de estoque + alertas de estoque baixo
-- Usuários (lojista / garçom)
-- Reservas, mapa e relatórios
+### Equipe
+- **Garçom:** check-in, entrega, pedido manual, conta/baixa, mapa
+- **Cozinha/Bar:** fila por setor (recebido → preparando → pronto)
+- **Lojista:** dashboard, produtos, categorias, tendas, estoque, usuários, reservas, relatórios
 
 ---
 
 ## Stack
 
-| Camada | Tecnologia |
-|--------|------------|
+| | |
+|--|--|
 | Backend | Python 3 + Flask |
-| Banco | SQLite local ou **Postgres/Supabase** (`DATABASE_URL`) |
-| ORM | Flask-SQLAlchemy |
-| Front | Jinja2 + HTML/CSS/JS (responsivo) |
-| Auth | Sessão Flask (equipe) · PIN do dia (cliente) |
-| API | `GET /api/pedido/<numero>` → 200 JSON ou 404 |
+| Banco | SQLite (local) ou **Postgres/Supabase** (`DATABASE_URL`) |
+| Front | Jinja2 + CSS/JS responsivo |
 | Deploy | Vercel + Supabase |
 
 ---
 
-## Como rodar
-
-### Requisitos
-- Python **3.10+**
-
-### Instalação
+## Como rodar (local)
 
 ```bash
 git clone https://github.com/KaiqueSuzart/Trabalho-vibe-coding.git
 cd Trabalho-vibe-coding
-
 python -m venv .venv
-
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-
-# Linux / macOS
-# source .venv/bin/activate
-
+.\.venv\Scripts\Activate.ps1   # Windows
 pip install -r requirements.txt
 python seed.py
 python app.py
 ```
 
-Abra no navegador: **[http://127.0.0.1:5000](http://127.0.0.1:5000)**
+Abra: http://127.0.0.1:5000
 
 ### Credenciais demo
 
-| Papel | Usuário | Senha |
-|-------|---------|-------|
-| Lojista | `admin` | `admin` |
-| Garçom | `garcom` | `garcom` |
+| Papel | Login |
+|-------|--------|
+| Lojista | `admin` / `admin` |
+| Garçom | `garcom` / `garcom` |
+| Cliente | PIN do dia: `1234` |
 
-**PIN do dia (cliente):** `1234`
-
----
-
-## Fluxo para apresentar (roteiro)
-
-1. **Reservar** uma tenda (ou ir direto em Pedir)
-2. Em **Pedir**, informe o nº da tenda + PIN `1234`  
-   → a sessão abre e a tenda fica **ocupada** no mapa
-3. Escolha itens no cardápio → carrinho → forma de pagamento
-4. Login **garçom** → veja **Pedidos em andamento**
-5. Abra **Cozinha/Bar** → Preparar → Pronto
-6. Volte ao garçom → **Entregar** (e cobrar, se for “na entrega”)
-7. Em **Conta**, dê baixa no que foi pago/entregue e feche a tenda
-8. Login **admin** → dashboard, estoque e relatórios
+Para usar Supabase: defina `DATABASE_URL` no `.env` (não versionado) e rode `python setup_supabase.py` ou `python seed.py`.
 
 ---
 
-## Regras de negócio (resumo)
+## Rotas úteis
 
-| Situação | O que acontece |
-|----------|----------------|
-| Tenda livre/reservada + PIN correto | Abre sessão e libera o cardápio |
-| Tenda em manutenção | Bloqueada |
-| Pedido online sem pagar | Não entra na cozinha até confirmar pagamento |
-| Estoque insuficiente | Pedido bloqueado |
-| Fechamento da conta | Tenda volta a **livre** no mapa |
-| `python seed.py` | **Apaga e recria** o banco com dados demo |
-
----
-
-## Estrutura do projeto
-
-```text
-Trabalho-vibe-coding/
-├── app.py              # App Flask + migração de schema
-├── config.py           # Configurações (SQLite, PIN do dia)
-├── models.py           # Modelos (tendas, pedidos, estoque...)
-├── helpers.py          # Auth por papel, totais da conta
-├── migrate.py          # Garante colunas novas no SQLite
-├── seed.py             # Dados de demonstração
-├── test_e2e.py         # Teste ponta a ponta
-├── requirements.txt
-├── routes/
-│   ├── public.py       # Cliente, reserva, cardápio, pagamento
-│   ├── auth.py         # Login / logout
-│   ├── waiter.py       # Painel do garçom
-│   ├── kitchen.py      # Cozinha / bar
-│   ├── admin.py        # Lojista
-│   └── api.py          # Endpoints JSON (polling)
-├── templates/          # Telas Jinja2
-└── static/
-    ├── css/style.css
-    ├── js/app.js       # Carrossel + UX
-    └── img/products/   # Fotos do cardápio
-```
+| URL | Função |
+|-----|--------|
+| `/` | Home |
+| `/pedir` | Abrir tenda (PIN) |
+| `/cardapio` | Cardápio |
+| `/reservar` | Reserva |
+| `/acompanhar` | Status via API |
+| `/teste-api` | Teste JSON 200/404 |
+| `/barraca/` | Painel da barraca (login) |
+| `/garcom/` | Garçom |
+| `/cozinha/` | Cozinha/Bar |
+| `/admin/` | Lojista |
+| `/api/pedido/<n>` | API do enunciado |
 
 ---
 
 ## Testes
 
 ```bash
-python test_e2e.py
+python test_smoke.py   # abas + botões
+python test_e2e.py     # fluxo completo
 ```
 
-O script valida o fluxo completo: abrir tenda, pedir, cozinha, entrega, pagamento online, admin (produto/estoque) e fechamento da conta.
+---
+
+## Deploy (Vercel)
+
+Variáveis de ambiente:
+
+- `SECRET_KEY`
+- `DAY_PIN` (ex.: `1234`)
+- `DATABASE_URL` — use o **pooler** do Supabase (IPv4), senha URL-encoded
+
+Exemplo de pooler:
+
+```text
+postgresql://postgres.SEU_REF:SENHA@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+```
 
 ---
 
-## Observações acadêmicas
+## Estrutura
 
-- Banco **100% local** — não precisa de MySQL/PostgreSQL na nuvem
-- PIX/cartão são **simulação** (registro local, sem gateway real)
-- Interface pensada para **celular (cliente)** e **desktop/tablet (equipe)**
-- Atualização dos painéis por **polling** (reload automático)
+```text
+app.py, config.py, models.py, helpers.py, migrate.py, seed.py
+routes/     public, auth, waiter, kitchen, barraca, admin, api
+templates/  cliente, equipe, admin
+static/     css, js, fotos do cardápio
+vercel.json
+HISTORICO_PROMPTS.md   # entrega da matéria
+```
 
 ---
+
+## Observações
+
+- PIX/cartão são **simulados** (sem gateway real)
+- `python seed.py` **recria** o banco (apaga dados)
+- Interface: mobile (cliente) e desktop (equipe)
 
 ## Autoria
 
-Projeto desenvolvido como trabalho acadêmico de vibe coding.  
-Repositório GitHub: https://github.com/KaiqueSuzart/Trabalho-vibe-coding
+Trabalho acadêmico · vibe coding · FIAP
