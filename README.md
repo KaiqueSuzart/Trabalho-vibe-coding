@@ -111,17 +111,27 @@ python test_e2e.py     # fluxo completo
 
 ## Deploy (Vercel)
 
-Variáveis de ambiente:
+Variáveis de ambiente (**Production e Preview**):
 
-- `SECRET_KEY`
-- `DAY_PIN` (ex.: `1234`)
-- `DATABASE_URL` — use o **pooler** do Supabase (IPv4), senha URL-encoded
+| Key | Value |
+|-----|--------|
+| `SECRET_KEY` | qualquer string secreta |
+| `DAY_PIN` | `1234` |
+| `DATABASE_URL` | pooler abaixo (obrigatório) |
 
-Exemplo de pooler:
+**DATABASE_URL (copie exatamente, trocando a senha se mudou):**
 
 ```text
-postgresql://postgres.SEU_REF:SENHA@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+postgresql://postgres.olsznvaungwnxdsbjprl:Al101299130874%2A@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
 ```
+
+Importante:
+- Use o **pooler** (`aws-0-...pooler.supabase.com:6543`), não `db.xxx.supabase.co`
+- O `*` da senha vira `%2A`
+- Sempre com `?sslmode=require`
+- Depois de salvar as variáveis, faça **Redeploy**
+
+Diagnóstico: https://trabalho-vibe-coding-liard.vercel.app/health
 
 ---
 

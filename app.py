@@ -77,15 +77,39 @@ def create_app(config_class=Config):
         }
 
     with app.app_context():
-        from migrate import ensure_schema
+        # No Vercel o schema já foi criado via seed; create_all no cold start
+        # atrasa/quebra a function (pooler transaction mode).
+        if not os.environ.get("VERCEL"):
+            from migrate import ensure_schema
 
-        try:
-            ensure_schema()
-        except Exception as exc:
-            # Evita crash opaco no Vercel; a rota ainda pode mostrar o erro
-            app.logger.exception("Falha ao preparar schema: %s", exc)
-            if os.environ.get("VERCEL"):
-                raise
+            try:
+                ensure_schema()
+            except Exception as exc:
+                app.logger.exception("Falha ao preparar schema: %s", exc)
+
+    @app.get("/health")
+    def health():
+        """Diagnóstico rápido de deploy (sem dados sensíveis)."""
+        uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
+        using_pg = uri.startswith("postgresql")
+        db_ok = False
+        db_err = None
+        if using_pg:
+            try:
+                from sqlalchemy import text
+
+                db.session.execute(text("select 1"))
+                db_ok = True
+            except Exception as exc:
+                db_err = type(exc).__name__
+        return {
+            "ok": db_ok if using_pg else True,
+            "vercel": bool(os.environ.get("VERCEL")),
+            "database": "postgres" if using_pg else "sqlite",
+            "database_configured": bool(os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")),
+            "db_ping": db_ok,
+            "db_error": db_err,
+        }, (200 if (db_ok or not using_pg) else 503)
 
     return app
 
