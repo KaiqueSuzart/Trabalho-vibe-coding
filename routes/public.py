@@ -392,17 +392,28 @@ def place_order(number):
         product = Product.query.get(int(pid))
         if not product or not product.available:
             continue
-        if product.kind == "produto" and product.stock_qty < data["quantity"]:
-            db.session.rollback()
-            flash(f"Estoque insuficiente para {product.name}.", "danger")
-            return redirect(url_for("public.cart_view", number=number))
+        qty = data["quantity"]
+
+        if product.kind == "produto":
+            # Baixa atômica: o UPDATE só afeta a linha se ainda houver saldo.
+            # Dois pedidos simultâneos não conseguem vender o mesmo estoque
+            # (evita venda abaixo de zero em concorrência / serverless).
+            result = db.session.execute(
+                db.update(Product)
+                .where(Product.id == product.id, Product.stock_qty >= qty)
+                .values(stock_qty=Product.stock_qty - qty)
+            )
+            if result.rowcount == 0:
+                db.session.rollback()
+                flash(f"Estoque insuficiente para {product.name}.", "danger")
+                return redirect(url_for("public.cart_view", number=number))
 
         item = OrderItem(
             order_id=order.id,
             product_id=product.id,
             product_name=product.name,
             unit_price=product.price,
-            quantity=data["quantity"],
+            quantity=qty,
             notes=data.get("notes", ""),
             status="recebido",
             sector=product.category.sector if product.category else "cozinha",
@@ -410,11 +421,10 @@ def place_order(number):
         db.session.add(item)
 
         if product.kind == "produto":
-            product.stock_qty -= data["quantity"]
             db.session.add(
                 StockMovement(
                     product_id=product.id,
-                    quantity=-data["quantity"],
+                    quantity=-qty,
                     reason=f"Pedido #{order.id}",
                 )
             )
@@ -536,6 +546,54 @@ def cancel_order(number, order_id):
     db.session.commit()
     flash(f"Pedido #{order.id} cancelado.", "info")
     return redirect(url_for("public.orders", number=number))
+
+
+@public_bp.route("/t/<int:number>/repetir", methods=["POST"])
+def repeat_order(number):
+    """Recria o último pedido da tenda no carrinho (um toque) para o cliente
+    revisar e confirmar. Não refaz aluguel/serviço e ignora itens indisponíveis."""
+    if session.get("client_tent") != number or not session.get("client_session_id"):
+        return redirect(url_for("public.tent_entry", number=number))
+
+    last = (
+        Order.query.filter_by(session_id=session["client_session_id"])
+        .filter(Order.status != "cancelado")
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+    # pega o pedido mais recente que tenha algum item de cardápio (não só aluguel)
+    source = None
+    for order in last:
+        if any(i.sector != "servico" and i.status != "cancelado" for i in order.items):
+            source = order
+            break
+
+    if not source:
+        flash("Ainda não há um pedido para repetir.", "info")
+        return redirect(url_for("public.menu", number=number))
+
+    cart = session.get("cart", {})
+    added = 0
+    for item in source.items:
+        if item.sector == "servico" or item.status == "cancelado":
+            continue
+        product = Product.query.get(item.product_id)
+        if not product or not product.available:
+            continue
+        pid = str(product.id)
+        entry = cart.get(pid, {"quantity": 0, "notes": ""})
+        entry["quantity"] += item.quantity
+        if item.notes:
+            entry["notes"] = item.notes
+        cart[pid] = entry
+        added += 1
+
+    session["cart"] = cart
+    if added:
+        flash(f"Itens do pedido #{source.id} adicionados ao carrinho. Revise e confirme.", "success")
+        return redirect(url_for("public.cart_view", number=number))
+    flash("Os itens do último pedido não estão mais disponíveis.", "warning")
+    return redirect(url_for("public.menu", number=number))
 
 
 @public_bp.route("/acompanhar")

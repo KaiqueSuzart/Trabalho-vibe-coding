@@ -48,7 +48,7 @@
       <p>Em aberto: <strong>R$ {{ '%.2f'|format(total) }}</strong></p>
     </div>
     {% if open_session.status == 'aberta' %}
-      <form method="post" action="{{ url_for('public.request_close', number=tent.number) }}">
+      <form method="post" action="{{ url_for('public.request_close', number=tent.number) }}" onsubmit="return confirm('Solicitar o fechamento da conta? Um garçom virá até a tenda.')">
         <button type="submit" class="btn btn-primary">Solicitar fechamento</button>
       </form>
     {% else %}

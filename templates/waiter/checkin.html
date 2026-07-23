@@ -2,9 +2,10 @@
 {% block title %}Check-in{% endblock %}
 {% block content %}
 <section class="panel narrow">
+  <a class="btn btn-ghost btn-sm back-link" href="{{ url_for('waiter.dashboard') }}">← Voltar</a>
   <h1>Check-in de tenda</h1>
   <p class="notice">PIN do dia para o cliente: <strong>{{ day_pin }}</strong></p>
-  <form method="post" class="stack">
+  <form method="post" class="stack" onsubmit="return confirm('Abrir a sessão desta tenda? O aluguel será lançado na conta.')">
     <label>Tenda
       <select name="tent_id" required>
         {% for tent in tents %}

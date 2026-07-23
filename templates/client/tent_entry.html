@@ -2,6 +2,7 @@
 {% block title %}Tenda {{ tent.number }}{% endblock %}
 {% block content %}
 <section class="panel narrow">
+  <a class="btn btn-ghost btn-sm back-link" href="{{ url_for('public.order_start') }}">← Voltar</a>
   <h1>Tenda {{ tent.number }}</h1>
   <p class="muted">{{ tent.zone }} · {{ tent.capacity }} pessoas · R$ {{ '%.2f'|format(tent.daily_price) }}/dia</p>
   <p class="badge status-{{ tent.status }}">{{ tent.status|label }}</p>

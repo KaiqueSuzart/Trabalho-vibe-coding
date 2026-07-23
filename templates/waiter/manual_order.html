@@ -2,6 +2,7 @@
 {% block title %}Pedido manual{% endblock %}
 {% block content %}
 <section class="panel narrow">
+  <a class="btn btn-ghost btn-sm back-link" href="{{ url_for('waiter.dashboard') }}">← Voltar</a>
   <h1>Lançar pedido (garçom)</h1>
   {% if not open_sessions %}
     <p class="muted">Nenhuma sessão aberta. Faça o check-in primeiro.</p>
