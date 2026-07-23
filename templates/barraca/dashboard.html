@@ -46,6 +46,9 @@
               <strong>#{{ order.id }}</strong>
               <span class="tent-pill">Tenda {{ order.session.tent.number }}</span>
               <span class="muted">{{ order.created_at.strftime('%H:%M') }}</span>
+              {% if order.status not in ['entregue', 'cancelado'] %}
+              <span class="age-chip" data-created="{{ order.created_at.isoformat() }}Z">há 0 min</span>
+              {% endif %}
             </div>
             <span class="badge status-{{ order.status }}">{{ api_st }}</span>
           </header>
@@ -87,5 +90,41 @@
 </section>
 {% endblock %}
 {% block scripts %}
-<script>setInterval(() => location.reload(), 10000);</script>
+<script>
+// Recarrega só quando os pedidos ativos mudam (novo pedido ou troca de status),
+// em vez de recarregar a página inteira a cada 10s sem motivo.
+(function () {
+  let last = null;
+  async function check() {
+    try {
+      const res = await fetch('{{ url_for("api.barraca_summary") }}', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (last !== null && data.signature !== last) {
+        location.reload();
+        return;
+      }
+      last = data.signature;
+    } catch (e) { /* rede instável na praia: tenta no próximo ciclo */ }
+  }
+  check();
+  setInterval(check, 5000);
+})();
+
+// Cronômetro de espera: "há X min" com cor que escala conforme envelhece.
+(function () {
+  function updateAges() {
+    document.querySelectorAll('.age-chip').forEach((chip) => {
+      const created = new Date(chip.dataset.created);
+      if (isNaN(created)) return;
+      const mins = Math.max(0, Math.floor((Date.now() - created.getTime()) / 60000));
+      chip.textContent = 'há ' + mins + ' min';
+      chip.classList.toggle('age-warn', mins >= 5 && mins < 15);
+      chip.classList.toggle('age-late', mins >= 15);
+    });
+  }
+  updateAges();
+  setInterval(updateAges, 30000);
+})();
+</script>
 {% endblock %}

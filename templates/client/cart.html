@@ -43,7 +43,7 @@
     </ul>
     <p class="total">Total: R$ {{ '%.2f'|format(total) }}</p>
 
-    <form method="post" action="{{ url_for('public.place_order', number=tent.number) }}" class="stack checkout-form">
+    <form method="post" action="{{ url_for('public.place_order', number=tent.number) }}" class="stack checkout-form" onsubmit="return confirm('Confirmar o pedido da tenda {{ tent.number }} (R$ {{ '%.2f'|format(total) }})?')">
       <label>Observação do pedido
         <input type="text" name="order_notes" placeholder="Ex.: sem gelo">
       </label>

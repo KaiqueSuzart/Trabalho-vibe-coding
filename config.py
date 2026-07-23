@@ -92,8 +92,23 @@ def _database_uri() -> str:
     return "sqlite:///" + os.path.join(BASE_DIR, "barraca.db")
 
 
+def _secret_key() -> str:
+    key = os.environ.get("SECRET_KEY", "").strip()
+    if key:
+        return key
+    # Em produção a chave assina o cookie de sessão: sem ela, qualquer um que
+    # conheça o valor commitado poderia forjar sessão de lojista. Exige env.
+    if os.environ.get("VERCEL"):
+        raise RuntimeError(
+            "SECRET_KEY não definida no Vercel. Configure uma string secreta "
+            "nas variáveis de ambiente (Production e Preview)."
+        )
+    # Fallback só para desenvolvimento local.
+    return "dev-only-barraca-praia-local"
+
+
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY", "barraca-praia-faculdade-2026")
+    SECRET_KEY = _secret_key()
     SQLALCHEMY_DATABASE_URI = _database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = (

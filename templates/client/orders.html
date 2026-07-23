@@ -5,6 +5,11 @@
   <div class="row-between">
     <h1>Seus pedidos</h1>
     <div class="cta-row">
+      {% if orders %}
+      <form method="post" action="{{ url_for('public.repeat_order', number=tent.number) }}" class="inline">
+        <button type="submit" class="btn btn-sm btn-primary">↻ Repetir último pedido</button>
+      </form>
+      {% endif %}
       <a class="btn btn-sm" href="{{ url_for('public.track_order') }}">Acompanhar via API</a>
       <a class="btn btn-sm" href="{{ url_for('public.menu', number=tent.number) }}">Cardápio</a>
     </div>
@@ -22,6 +27,19 @@
           <span class="badge status-{{ order.status }}" data-api-status>{{ order.status|label }}</span>
           <span class="muted">{{ order.created_at.strftime('%H:%M') }}</span>
         </header>
+        {% set step_idx = {'recebido':0,'preparando':1,'pronto':2,'entregue':3}.get(order.status, -1) %}
+        {% if order.status == 'cancelado' %}
+          <p class="stepper-cancelled">Pedido cancelado</p>
+        {% else %}
+        <ol class="stepper" data-stepper data-current="{{ step_idx }}">
+          {% for label in ['Recebido','Em preparo','Pronto','Entregue'] %}
+            <li class="step {% if loop.index0 <= step_idx %}is-done{% endif %} {% if loop.index0 == step_idx %}is-current{% endif %}">
+              <span class="step-dot"></span>
+              <span class="step-label">{{ label }}</span>
+            </li>
+          {% endfor %}
+        </ol>
+        {% endif %}
         {% if estimates.get(order.id) %}
           <p class="eta">Estimativa de espera: ~{{ estimates[order.id] }} min</p>
         {% endif %}
@@ -72,6 +90,15 @@
       if (!card) continue;
       const badge = card.querySelector('[data-api-status]');
       if (badge) badge.textContent = data.status;
+      const stepIndex = { 'recebido': 0, 'em preparo': 1, 'pronto': 2, 'entregue': 3 };
+      const stepper = card.querySelector('[data-stepper]');
+      if (stepper && data.status in stepIndex) {
+        const idx = stepIndex[data.status];
+        stepper.querySelectorAll('.step').forEach((step, i) => {
+          step.classList.toggle('is-done', i <= idx);
+          step.classList.toggle('is-current', i === idx);
+        });
+      }
       const ul = card.querySelector('[data-api-items]');
       if (ul) {
         ul.innerHTML = '';

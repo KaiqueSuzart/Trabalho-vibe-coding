@@ -87,6 +87,15 @@ def create_app(config_class=Config):
             except Exception as exc:
                 app.logger.exception("Falha ao preparar schema: %s", exc)
 
+    @app.errorhandler(404)
+    def _json_404(err):
+        """Sob /api, um 404 sempre volta como JSON (contrato do enunciado)."""
+        from flask import request
+
+        if request.path.startswith("/api/"):
+            return {"erro": True, "mensagem": "Recurso não encontrado."}, 404
+        return err
+
     @app.get("/health")
     def health():
         """Diagnóstico rápido de deploy (sem senha)."""

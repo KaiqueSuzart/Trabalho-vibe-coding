@@ -177,9 +177,16 @@ def manual_order():
         notes = request.form.get("notes", "").strip()
         product = Product.query.get_or_404(product_id)
 
-        if product.kind == "produto" and product.stock_qty < qty:
-            flash("Estoque insuficiente.", "danger")
-            return redirect(url_for("waiter.manual_order"))
+        if product.kind == "produto":
+            result = db.session.execute(
+                db.update(Product)
+                .where(Product.id == product.id, Product.stock_qty >= qty)
+                .values(stock_qty=Product.stock_qty - qty)
+            )
+            if result.rowcount == 0:
+                db.session.rollback()
+                flash("Estoque insuficiente.", "danger")
+                return redirect(url_for("waiter.manual_order"))
 
         order = Order(session_id=tent_session.id, notes=notes, status="recebido", source="garcom")
         db.session.add(order)
@@ -197,7 +204,6 @@ def manual_order():
             )
         )
         if product.kind == "produto":
-            product.stock_qty -= qty
             db.session.add(
                 StockMovement(
                     product_id=product.id,
